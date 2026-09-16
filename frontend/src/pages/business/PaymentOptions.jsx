@@ -7,7 +7,7 @@ import SecuritySection from '../../components/business/SecuritySection'
 import ContactCTA from '../../components/common/ContactCTA'
 
 export default function PaymentOptions() {
-  usePageMeta('Business Payment Options | Lynk', 'Card-Pay, Bill-Pay, and contract accounts for Lynk Business — with PINs, validations, and time restrictions.')
+  usePageMeta('Business Payment Options | DayTrip', 'Card-Pay, Bill-Pay, and contract accounts for DayTrip Business — with PINs, validations, and time restrictions.')
 
   return (
     <div>

@@ -8,7 +8,7 @@ import { isValidEmail } from '../../utils/validators'
 import * as authService from '../../services/authService'
 
 export default function ForgotPassword() {
-  usePageMeta('Forgot Password | Lynk', 'Reset the password for your Lynk account.')
+  usePageMeta('Forgot Password | DayTrip', 'Reset the password for your DayTrip account.')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)

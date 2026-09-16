@@ -13,7 +13,7 @@ const STEPS = [
 ]
 
 export default function QrBooker() {
-  usePageMeta('QR Taxi Booker | Lynk', 'Place a QR code at reception or in guest rooms — guests scan to book a taxi with no app required.')
+  usePageMeta('QR Taxi Booker | DayTrip', 'Place a QR code at reception or in guest rooms — guests scan to book a taxi with no app required.')
 
   return (
     <div>

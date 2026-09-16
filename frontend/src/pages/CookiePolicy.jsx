@@ -2,7 +2,7 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import LegalPage from './LegalPage'
 
 export default function CookiePolicy() {
-  usePageMeta('Cookie Policy | Lynk', 'How Lynk uses cookies to keep you signed in and improve the booking experience.')
+  usePageMeta('Cookie Policy | DayTrip', 'How DayTrip uses cookies to keep you signed in and improve the booking experience.')
 
   return (
     <LegalPage title="Cookie Policy" updated="January 2026">

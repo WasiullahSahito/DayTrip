@@ -12,7 +12,7 @@ import StripePaymentModal from '../../components/booking/StripePaymentModal'
 import { STATUS_META } from '../../components/booking/statusMeta'
 import * as bookingService from '../../services/bookingService'
 import { useToast } from '../../context/ToastContext'
-import { formatCurrency, relativeMinutes, initials } from '../../utils/format'
+import { formatCurrency, formatTime, relativeMinutes, initials } from '../../utils/format'
 
 const PROGRESS_BY_STATUS = {
   scheduled: 0,
@@ -137,7 +137,7 @@ export default function ActiveBooking() {
         </div>
         <p className="mt-2.5 text-lg font-bold text-ink">
           {live.status === 'pending_payment' && 'Awaiting payment'}
-          {live.status === 'scheduled' && `Pickup in ${relativeMinutes(live.etaMins)}`}
+          {live.status === 'scheduled' && `Pickup at ${formatTime(booking.scheduledFor)}`}
           {live.status === 'searching' && 'Finding your driver…'}
           {live.status === 'driver_assigned' && `Driver arriving in ${relativeMinutes(live.etaMins)}`}
           {live.status === 'driver_en_route' && `Driver arriving in ${relativeMinutes(live.etaMins)}`}

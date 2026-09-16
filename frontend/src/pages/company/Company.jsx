@@ -12,7 +12,7 @@ const STATS = [
 ]
 
 export default function Company() {
-  usePageMeta('About Lynk', 'Lynk is Dublin’s taxi booking platform for individuals and businesses — online, in-app, or by phone.')
+  usePageMeta('About DayTrip', 'DayTrip is Dublin’s taxi booking platform for individuals and businesses — online, in-app, or by phone.')
 
   return (
     <div>
@@ -20,7 +20,7 @@ export default function Company() {
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Moving Dublin, reliably</h1>
           <p className="mt-4 text-white/70">
-            Lynk connects passengers and businesses with a professional taxi network across
+            DayTrip connects passengers and businesses with a professional taxi network across
             Dublin — booked online, in the app, or by phone.
           </p>
         </div>
@@ -56,7 +56,7 @@ export default function Company() {
       </section>
 
       <CTABand
-        title="Ready to ride with Lynk?"
+        title="Ready to ride with DayTrip?"
         description="Register in minutes as a personal rider or set up a business account."
         primary={{ label: 'Register for Free', to: '/register' }}
         secondary={{ label: 'Explore Business', to: '/business' }}

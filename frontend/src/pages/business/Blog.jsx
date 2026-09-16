@@ -27,7 +27,7 @@ const POSTS = [
 ]
 
 export default function Blog() {
-  usePageMeta('Business Blog | Lynk', 'Insights on business travel, guest transport, and account management from the Lynk Business team.')
+  usePageMeta('Business Blog | DayTrip', 'Insights on business travel, guest transport, and account management from the DayTrip Business team.')
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">

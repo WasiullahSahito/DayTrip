@@ -55,7 +55,9 @@ export function computeLiveStatus(booking) {
   if (booking.status === 'pending_payment') return { status: 'pending_payment', etaMins: null }
 
   if (booking.isScheduled) {
-    const msToPickup = booking.scheduledFor - Date.now()
+    const scheduledTimestamp = Number(booking.scheduledFor)
+    const scheduledAt = scheduledTimestamp < 1000000000000 ? scheduledTimestamp * 1000 : scheduledTimestamp
+    const msToPickup = scheduledAt - Date.now()
     if (msToPickup > 5 * 60 * 1000) {
       return { status: 'scheduled', etaMins: Math.round(msToPickup / 60000) }
     }

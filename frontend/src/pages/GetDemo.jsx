@@ -12,7 +12,7 @@ import { delay } from '../services/storage'
 const BUSINESS_TYPES = ['Corporate', 'Healthcare', 'Hospitality', 'Public Sector', 'Other']
 
 export default function GetDemo() {
-  usePageMeta('Get a Demo | Lynk Business', 'Request a demo of Lynk Business — tell us about your organisation and we’ll be in touch.')
+  usePageMeta('Get a Demo | DayTrip Business', 'Request a demo of DayTrip Business — tell us about your organisation and we’ll be in touch.')
 
   const toast = useToast()
   const [form, setForm] = useState({
@@ -55,7 +55,7 @@ export default function GetDemo() {
       <div className="mx-auto max-w-md px-4 py-24 text-center sm:px-6">
         <h1 className="text-2xl font-extrabold text-ink">Thanks, {form.name.split(' ')[0]}!</h1>
         <p className="mt-2 text-ink-soft">
-          A member of the Lynk Business team will reach out to {form.email} within one working day.
+          A member of the DayTrip Business team will reach out to {form.email} within one working day.
         </p>
       </div>
     )
@@ -65,7 +65,7 @@ export default function GetDemo() {
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
       <div className="text-center">
         <h1 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Request a demo</h1>
-        <p className="mt-3 text-ink-soft">Tell us about your organisation and we'll show you how Lynk Business fits.</p>
+        <p className="mt-3 text-ink-soft">Tell us about your organisation and we'll show you how DayTrip Business fits.</p>
       </div>
 
       <Card className="mt-10 !p-7">

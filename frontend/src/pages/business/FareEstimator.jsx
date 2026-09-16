@@ -9,7 +9,7 @@ import VehicleCard from '../../components/booking/VehicleCard'
 import { VEHICLE_TYPES, haversineKm, estimateFare } from '../../data/vehicles'
 
 export default function FareEstimator() {
-  usePageMeta('Fare Estimator | Lynk', "Calculate your journey's cost estimate before you book.")
+  usePageMeta('Fare Estimator | DayTrip', "Calculate your journey's cost estimate before you book.")
 
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)

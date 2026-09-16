@@ -55,7 +55,7 @@ export default function MarketingFooter() {
       </div>
       <div className="border-t border-border px-4 py-5 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-xs text-ink-soft sm:flex-row sm:items-center sm:justify-between">
-          <span>&copy; {new Date().getFullYear()} Lynk Clone — an unofficial UI/UX recreation built for demonstration purposes.</span>
+          <span>&copy; {new Date().getFullYear()} DayTrip — an unofficial UI/UX recreation built for demonstration purposes.</span>
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
             <span className="flex items-center gap-1.5">
               <Phone className="size-3.5" /> (01) 820 2020

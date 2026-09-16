@@ -47,7 +47,7 @@ export const SECTOR_CONTENT = {
       { icon: CalendarDays, title: 'Corporate events', desc: 'Coordinate transport for conferences, offsites, and client entertainment from one dashboard.' },
       { icon: Users, title: 'Guest bookings', desc: 'Book taxis on behalf of visitors and clients without sharing your personal account.' },
       { icon: Package, title: 'Package delivery', desc: 'Send documents or parcels across the city with the same taxi network you already trust.' },
-      { icon: Smartphone, title: 'Book anywhere', desc: 'Web Booker, the Lynk app, or a phone call — every channel lands in the same account.' },
+      { icon: Smartphone, title: 'Book anywhere', desc: 'Web Booker, the DayTrip app, or a phone call — every channel lands in the same account.' },
     ],
     benefits: [
       { icon: FileText, title: 'Expense reports', desc: 'Itemised, exportable statements replace paper receipts and manual claims.' },
@@ -103,7 +103,7 @@ export const SECTOR_CONTENT = {
     eyebrow: 'For Hospitality',
     heroTitle: 'Easily book taxis for guests and visitors',
     heroDescription:
-      'Hotels, B&Bs, and guesthouses use Lynk to arrange guest transport in seconds — no app download, no waiting on hold, no extra work for reception.',
+      'Hotels, B&Bs, and guesthouses use DayTrip to arrange guest transport in seconds — no app download, no waiting on hold, no extra work for reception.',
     heroBullets: ['Guest bookings from reception in seconds', 'QR codes guests can scan themselves', 'Airport meet & greet for arrivals'],
     primaryCta: { label: 'Get Web Booker', to: '/register' },
     secondaryCta: { label: 'Get Demo', to: '/get-demo' },
@@ -136,9 +136,9 @@ export const SECTOR_CONTENT = {
     eyebrow: 'For Public Sector',
     heroTitle: 'Smart, flexible transport tailored for the public sector',
     heroDescription:
-      'Government offices and public bodies use Lynk for cost-efficient, accountable transport — with the security controls procurement expects.',
+      'Government offices and public bodies use DayTrip for cost-efficient, accountable transport — with the security controls procurement expects.',
     heroBullets: ['Auditable, itemised billing', 'PIN-protected & time-restricted bookings', 'Phone, web, and app booking channels'],
-    primaryCta: { label: 'Get Lynk', to: '/register' },
+    primaryCta: { label: 'Get DayTrip', to: '/register' },
     secondaryCta: { label: 'Apply Here', to: '/get-demo' },
     features: [
       { icon: Landmark, title: 'Cost efficiency', desc: 'Consolidated invoicing and transparent fares make budgeting straightforward.' },
@@ -159,7 +159,7 @@ export const SECTOR_CONTENT = {
     ctaBand: {
       title: 'Bring accountable transport to your office',
       description: 'Set up a public-sector account with the controls your procurement team needs.',
-      primary: { label: 'Get Lynk', to: '/register' },
+      primary: { label: 'Get DayTrip', to: '/register' },
       secondary: { label: 'Apply for an account', to: '/get-demo' },
     },
   },

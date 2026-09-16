@@ -11,7 +11,7 @@ import { delay } from '../services/storage'
 const TOPICS = ['Booking Issue', 'General Query', 'Accounts and Payments']
 
 export default function Contact() {
-  usePageMeta('Contact Us | Lynk', 'Get in touch with the Lynk team — bookings, general queries, or accounts and payments.')
+  usePageMeta('Contact Us | DayTrip', 'Get in touch with the DayTrip team — bookings, general queries, or accounts and payments.')
   const toast = useToast()
   const [form, setForm] = useState({ name: '', email: '', topic: TOPICS[0], message: '' })
   const [errors, setErrors] = useState({})

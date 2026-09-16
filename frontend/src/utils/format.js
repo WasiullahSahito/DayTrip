@@ -6,7 +6,7 @@ export function formatCurrency(amount) {
 }
 
 export function formatDate(date, opts = {}) {
-  const d = date instanceof Date ? date : new Date(date)
+  const d = toDate(date)
   return new Intl.DateTimeFormat('en-IE', {
     weekday: 'short',
     day: 'numeric',
@@ -16,12 +16,21 @@ export function formatDate(date, opts = {}) {
 }
 
 export function formatTime(date) {
-  const d = date instanceof Date ? date : new Date(date)
+  const d = toDate(date)
   return new Intl.DateTimeFormat('en-IE', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
   }).format(d)
+}
+
+function toDate(value) {
+  if (value instanceof Date) return value
+  if (typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value))) {
+    const timestamp = Number(value)
+    return new Date(timestamp < 1000000000000 ? timestamp * 1000 : timestamp)
+  }
+  return new Date(value)
 }
 
 export function formatDateTime(date) {

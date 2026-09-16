@@ -14,7 +14,7 @@ import { PROFILE_TYPES } from '../../data/profileTypes'
 const TYPE_ICON = { personal: User, business: Building2, 'business-plus': Briefcase }
 
 export default function Register() {
-  usePageMeta('Register | Lynk', 'Create your free Lynk account — Personal, Business, or Business+.')
+  usePageMeta('Register | DayTrip', 'Create your free DayTrip account — Personal, Business, or Business+.')
   const { register } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
@@ -63,7 +63,7 @@ export default function Register() {
     setLoading(true)
     try {
       await register({ ...form, accountType })
-      toast.success('Account created — welcome to Lynk!')
+      toast.success('Account created — welcome to DayTrip!')
       navigate('/app/home', location.state?.rebook ? { state: { rebook: location.state.rebook } } : undefined)
     } catch (err) {
       setFormError(err.message || 'Something went wrong. Please try again.')

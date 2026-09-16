@@ -10,7 +10,7 @@ import { minLength, passwordStrength } from '../../utils/validators'
 import * as authService from '../../services/authService'
 
 export default function ResetPassword() {
-  usePageMeta('Reset Password | Lynk', 'Choose a new password for your Lynk account.')
+  usePageMeta('Reset Password | DayTrip', 'Choose a new password for your DayTrip account.')
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const toast = useToast()

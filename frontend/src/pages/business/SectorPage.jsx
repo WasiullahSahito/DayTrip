@@ -9,10 +9,10 @@ import { SECTOR_CONTENT } from '../../data/sectorContent'
 import { getSector } from '../../data/sectors'
 
 const SEO_TITLES = {
-  corporate: 'Corporate Taxi Services | Lynk',
-  healthcare: 'Healthcare Taxi Services | Lynk',
-  hospitality: 'Hospitality Taxi Services | Lynk',
-  'public-sector': 'Public Sector Taxi Services | Lynk',
+  corporate: 'Corporate Taxi Services | DayTrip',
+  healthcare: 'Healthcare Taxi Services | DayTrip',
+  hospitality: 'Hospitality Taxi Services | DayTrip',
+  'public-sector': 'Public Sector Taxi Services | DayTrip',
 }
 
 export default function SectorPage({ sectorKey }) {
@@ -44,7 +44,7 @@ export default function SectorPage({ sectorKey }) {
 
       <FeatureSection
         id="benefits"
-        eyebrow="Why teams choose Lynk"
+        eyebrow="Why teams choose DayTrip"
         title="Benefits for your organisation"
         items={content.benefits}
         columns={4}

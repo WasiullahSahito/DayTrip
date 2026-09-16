@@ -9,7 +9,7 @@ import { useToast } from '../../context/ToastContext'
 import { isValidEmail, isNotEmpty } from '../../utils/validators'
 
 export default function Login() {
-  usePageMeta('Log In | Lynk', 'Log in to your Lynk account to book and manage your rides.')
+  usePageMeta('Log In | DayTrip', 'Log in to your DayTrip account to book and manage your rides.')
   const { login } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()

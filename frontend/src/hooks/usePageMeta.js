@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 export function usePageMeta(title, description) {
   useEffect(() => {
     const prevTitle = document.title
-    document.title = title ? `${title} | Lynk Clone` : 'Lynk Clone'
+    document.title = title ? `${title} | DayTrip` : 'DayTrip'
 
     let meta = document.querySelector('meta[name="description"]')
     const prevDescription = meta?.getAttribute('content') ?? null

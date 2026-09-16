@@ -14,7 +14,7 @@ export default function SolutionsForEverySector({ excludeId, title = 'Solutions 
         <SectionTitle
           eyebrow="Sectors"
           title={title}
-          description="Whatever your organisation does, there's a Lynk Business solution built for it."
+          description="Whatever your organisation does, there's a DayTrip Business solution built for it."
         />
         <div className={`mt-12 grid gap-6 sm:grid-cols-2 ${sectors.length > 3 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
           {sectors.map((s) => (

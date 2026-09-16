@@ -10,7 +10,7 @@ import CTABand from '../../components/common/CTABand'
 
 export default function Business() {
   usePageMeta(
-    'Lynk Business Taxi Services',
+    'DayTrip Business Taxi Services',
     'Business taxi booking for every sector — corporate, healthcare, hospitality, and public sector. Register for free or get a demo.'
   )
   const { status } = useAuth()
@@ -28,7 +28,7 @@ export default function Business() {
         />
         <div className="relative mx-auto max-w-5xl px-4 py-16 text-center sm:px-6 sm:py-24 lg:py-28">
           <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-primary">
-            Lynk Business
+            DayTrip Business
           </span>
           <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
             Business transportation, without the overhead
@@ -69,14 +69,14 @@ export default function Business() {
 
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <SectionTitle
-          eyebrow="Why Lynk Business"
+          eyebrow="Why DayTrip Business"
           title="A professional network, built for accountability"
           description="Everything your finance and operations teams need, without slowing your team down."
         />
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <FeatureCard icon={<BarChart3 className="size-5" />} title="Real-time reporting" description="See trip volume and spend by user, department, or cost centre as it happens." />
           <FeatureCard icon={<ShieldCheck className="size-5" />} title="Security controls" description="PINs, booking validations, and time restrictions keep every trip in policy." />
-          <FeatureCard icon={<Smartphone className="size-5" />} title="Multiple booking methods" description="Web Booker, the Lynk app, and a dedicated business phone line, all reconciled to one account." />
+          <FeatureCard icon={<Smartphone className="size-5" />} title="Multiple booking methods" description="Web Booker, the DayTrip app, and a dedicated business phone line, all reconciled to one account." />
         </div>
       </section>
 

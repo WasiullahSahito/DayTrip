@@ -26,13 +26,13 @@ const BUSINESS_ITEMS = [
   { title: 'Healthcare', description: 'Patient and carer transportation, booked quickly for those in need.', icon: <HeartPulse className="size-4.5" />, to: '/business/healthcare' },
   { title: 'Hospitality', description: 'Guest or visitor bookings — schedule reliable taxis for your venue.', icon: <Hotel className="size-4.5" />, to: '/business/hospitality' },
   { title: 'Public Sector', description: 'Helping government offices move efficiently and within budget.', icon: <Landmark className="size-4.5" />, to: '/public-sector' },
-  { title: 'Get Demo', description: 'See Lynk Business in action with a guided walkthrough.', icon: <PresentationIcon className="size-4.5" />, to: '/get-demo' },
+  { title: 'Get Demo', description: 'See DayTrip Business in action with a guided walkthrough.', icon: <PresentationIcon className="size-4.5" />, to: '/get-demo' },
   { title: 'Book Now', description: 'Start a booking straight away — sign in or register to confirm.', icon: <Car className="size-4.5" />, to: '/book' },
 ]
 
 const PERSONAL_ITEMS = [
   { title: 'Taxi', description: 'Personalised Dublin taxis — book a taxi your way.', icon: <Car className="size-4.5" />, to: '/#personal' },
-  { title: 'Book Now', description: 'Enjoy the full Lynk booking experience — create your account.', icon: <Car className="size-4.5" />, to: '/book' },
+  { title: 'Book Now', description: 'Enjoy the full DayTrip booking experience — create your account.', icon: <Car className="size-4.5" />, to: '/book' },
 ]
 
 const SERVICES_ITEMS = [

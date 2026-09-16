@@ -113,7 +113,7 @@ export default function Landing() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Services we provide</h2>
-          <p className="mt-3 text-ink-soft">Whatever the journey, there's a Lynk service built for it.</p>
+          <p className="mt-3 text-ink-soft">Whatever the journey, there's a DayTrip service built for it.</p>
         </div>
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <ServiceCard

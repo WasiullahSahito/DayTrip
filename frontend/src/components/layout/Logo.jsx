@@ -18,7 +18,7 @@ export default function Logo({ className, mark = true, light = false }) {
           </svg>
         </span>
       )}
-      <span className={clsx('text-xl', light ? 'text-white' : 'text-ink')}>lynk</span>
+      <span className={clsx('text-xl', light ? 'text-white' : 'text-ink')}>DayTrip</span>
     </span>
   )
 }
