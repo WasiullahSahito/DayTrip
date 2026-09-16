@@ -1,5 +1,5 @@
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-const TOKEN_KEY = 'lynk-clone:token'
+const TOKEN_KEY = 'lynk-clone:token:v2'
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY)

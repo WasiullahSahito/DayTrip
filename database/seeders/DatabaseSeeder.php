@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'Murphy',
             'email' => 'demo@lynk.ie',
             'password' => 'password123', // the `hashed` cast on User::password hashes this automatically
-            'phone' => '+353 87 123 4567',
+            'phone' => '+353871234567',
             'account_type' => 'personal',
         ]);
 
@@ -37,7 +37,7 @@ class DatabaseSeeder extends Seeder
             'last_name' => 'User',
             'email' => 'admin@lynk.ie',
             'password' => 'password123',
-            'phone' => '+353 87 999 0000',
+            'phone' => '+353879990000',
             'account_type' => 'personal',
         ]);
         $admin->forceFill(['is_admin' => true])->save();
