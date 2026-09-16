@@ -10,9 +10,11 @@ export default function ActiveBookingBanner() {
 
   useEffect(() => {
     let mounted = true
-    bookingService.getActiveBookings().then((b) => mounted && setBookings(b))
+    const refresh = () => bookingService.getActiveBookings().then((b) => mounted && setBookings(b)).catch(() => {})
+
+    refresh()
     const interval = setInterval(() => {
-      bookingService.getActiveBookings().then((b) => mounted && setBookings(b))
+      refresh()
     }, 5000)
     return () => {
       mounted = false

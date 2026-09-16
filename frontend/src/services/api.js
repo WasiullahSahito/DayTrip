@@ -46,6 +46,7 @@ async function request(method, path, body, { idempotencyKey } = {}) {
 
     if (response.status === 401) {
       setToken(null)
+      window.dispatchEvent(new Event('lynk:auth-expired'))
     }
 
     throw error

@@ -19,6 +19,16 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  useEffect(() => {
+    function handleAuthExpired() {
+      setUser(null)
+      setStatus('unauthenticated')
+    }
+
+    window.addEventListener('lynk:auth-expired', handleAuthExpired)
+    return () => window.removeEventListener('lynk:auth-expired', handleAuthExpired)
+  }, [])
+
   const login = useCallback(async (credentials) => {
     const u = await authService.login(credentials)
     setUser(u)
