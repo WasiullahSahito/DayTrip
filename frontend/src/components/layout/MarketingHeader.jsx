@@ -66,10 +66,10 @@ export default function MarketingHeader() {
 
         <div className="hidden items-center gap-2 md:flex">
           <a
-            href="tel:+35318202020"
+            href="tel:+353894298440"
             className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:text-ink"
           >
-            <Phone className="size-4" /> (01) 820 2020
+            <Phone className="size-4" /> +353 89 429 8440
           </a>
           <Link to="/login">
             <Button variant="ghost" size="sm">

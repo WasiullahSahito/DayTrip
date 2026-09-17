@@ -55,14 +55,14 @@ export default function MarketingFooter() {
       </div>
       <div className="border-t border-border px-4 py-5 sm:px-6">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-xs text-ink-soft sm:flex-row sm:items-center sm:justify-between">
-          <span>&copy; {new Date().getFullYear()} DayTrip — an unofficial UI/UX recreation built for demonstration purposes.</span>
+          <span>&copy; {new Date().getFullYear()} DayTrip</span>
           <span className="flex flex-wrap items-center gap-x-4 gap-y-1">
-            <span className="flex items-center gap-1.5">
-              <Phone className="size-3.5" /> (01) 820 2020
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Mail className="size-3.5" /> customercare@lynk.ie
-            </span>
+            <a href="tel:+353894298440" className="flex items-center gap-1.5 hover:text-ink">
+              <Phone className="size-3.5" /> +353 89 429 8440
+            </a>
+            <a href="mailto:booking@daytrip.ie" className="flex items-center gap-1.5 hover:text-ink">
+              <Mail className="size-3.5" /> booking@daytrip.ie
+            </a>
             <span className="flex items-center gap-1.5">
               <MapPin className="size-3.5" /> Dublin, Ireland
             </span>

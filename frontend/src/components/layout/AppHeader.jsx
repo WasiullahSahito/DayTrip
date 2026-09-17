@@ -62,11 +62,11 @@ export default function AppHeader() {
 
         <div className="flex items-center gap-3">
           <a
-            href="tel:+35318202020"
+            href="tel:+353894298440"
             className="hidden items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-ink-soft hover:bg-surface-muted hover:text-ink sm:flex"
           >
             <Phone className="size-4" />
-            (01) 820 2020
+            +353 89 429 8440
           </a>
           <div className="relative" ref={menuRef}>
             <button

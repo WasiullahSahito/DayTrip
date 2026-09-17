@@ -50,9 +50,9 @@ export default function Contact() {
 
       <div className="mt-12 grid gap-8 lg:grid-cols-[1fr_1.4fr]">
         <div className="space-y-4">
-          <InfoCard icon={<Phone className="size-5" />} title="Bookings" lines={['+353 1 820 2020', '24 hours']} />
-          <InfoCard icon={<Phone className="size-5" />} title="General enquiries" lines={['+353 1 473 1333', 'Mon–Fri, 9am–5pm']} />
-          <InfoCard icon={<Mail className="size-5" />} title="Email" lines={['customercare@lynk.ie']} />
+          <InfoCard icon={<Phone className="size-5" />} title="Bookings" lines={['+353 89 429 8440', '24 hours']} />
+          <InfoCard icon={<Phone className="size-5" />} title="General enquiries" lines={['+353 89 429 8440', 'Mon–Fri, 9am–5pm']} />
+          <InfoCard icon={<Mail className="size-5" />} title="Email" lines={['booking@daytrip.ie']} />
           <InfoCard icon={<MapPin className="size-5" />} title="Address" lines={['Unit 21, Parkmore Industrial Estate', 'Long Mile Road, Dublin']} />
         </div>
 
