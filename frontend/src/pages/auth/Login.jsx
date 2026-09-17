@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Mail, Lock, Info } from 'lucide-react'
+import { Mail, Lock } from 'lucide-react'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import Input from '../../components/ui/Input'
 import Button from '../../components/ui/Button'
@@ -55,14 +55,6 @@ export default function Login() {
     <div className="animate-fade-in">
       <h1 className="text-2xl font-extrabold text-ink">Welcome back</h1>
       <p className="mt-1.5 text-sm text-ink-soft">Log in to book and manage your rides.</p>
-
-      <div className="mt-6 flex items-start gap-2.5 rounded-xl bg-primary-lighter/60 px-3.5 py-3 text-xs text-ink">
-        <Info className="mt-0.5 size-4 shrink-0 text-tertiary" />
-        <span>
-          Demo mode — sign in with <strong>demo@lynk.ie</strong> / <strong>password123</strong>,
-          or create your own account.
-        </span>
-      </div>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
         <Input
