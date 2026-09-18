@@ -9,7 +9,7 @@ const AIRPORT = ADDRESS_BOOK.find((a) => a.label.includes('Airport'))
 const AIRPORT_REBOOK_STATE = { rebook: { pickup: AIRPORT, destination: null, stops: [] } }
 
 export default function AirportTransfers() {
-  usePageMeta('Airport Transfers | DayTrip', 'Reliable airport taxi transfers to and from Dublin Airport, with flight tracking and fixed, upfront fares.')
+  usePageMeta('Airport Transfers | DayTrip', 'Reliable airport taxi transfers to and from Galway Airport, with flight tracking and fixed, upfront fares.')
 
   return (
     <div>
@@ -23,12 +23,12 @@ export default function AirportTransfers() {
           </h1>
           <p className="mt-4 text-white/70">
             Heading away with family or on a business trip? Rely on DayTrip's Airport Taxi service to
-            get you to Dublin Airport safely and on time — or track your driver home the moment
+            get you to Galway Airport safely and on time — or track your driver home the moment
             you land.
           </p>
           <div className="mt-7">
             <CTAButton to="/register" state={AIRPORT_REBOOK_STATE} size="lg">
-              Book from Dublin Airport <ArrowRight className="size-4.5" />
+              Book from Galway Airport <ArrowRight className="size-4.5" />
             </CTAButton>
           </div>
         </div>
@@ -49,7 +49,7 @@ export default function AirportTransfers() {
             <div>
               <h2 className="text-2xl font-extrabold text-ink">Landing soon?</h2>
               <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                Schedule your pickup from Dublin Airport in advance and add your flight number —
+                Schedule your pickup from Galway Airport in advance and add your flight number —
                 we'll have a driver waiting when you land.
               </p>
             </div>

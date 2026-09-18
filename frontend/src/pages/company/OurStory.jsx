@@ -2,14 +2,14 @@ import { usePageMeta } from '../../hooks/usePageMeta'
 import ContactCTA from '../../components/common/ContactCTA'
 
 const MILESTONES = [
-  { year: '2013', title: 'DayTrip is founded', desc: 'Started in Dublin with a simple goal: make booking a taxi as easy as making a phone call.' },
+  { year: '2013', title: 'DayTrip is founded', desc: 'Started in Galway with a simple goal: make booking a taxi as easy as making a phone call.' },
   { year: '2017', title: 'Web Booker launches', desc: 'Passengers and businesses could book from a browser for the first time, no app required.' },
   { year: '2020', title: 'Business accounts arrive', desc: 'Corporate, healthcare, hospitality, and public-sector organisations get dedicated tools.' },
   { year: '2024', title: 'QR Taxi Booker', desc: 'Hotels and venues start placing scannable codes to book guest transport instantly.' },
 ]
 
 export default function OurStory() {
-  usePageMeta('Our Story | DayTrip', 'How DayTrip grew from a Dublin taxi dispatcher into a full booking platform for individuals and businesses.')
+  usePageMeta('Our Story | DayTrip', 'How DayTrip grew from a Galway taxi dispatcher into a full booking platform for individuals and businesses.')
 
   return (
     <div>
@@ -17,7 +17,7 @@ export default function OurStory() {
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
           <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Our story</h1>
           <p className="mt-4 text-white/70">
-            From a Dublin taxi dispatcher to a full booking platform — here's how we got here.
+            From a Galway taxi dispatcher to a full booking platform — here's how we got here.
           </p>
         </div>
       </section>

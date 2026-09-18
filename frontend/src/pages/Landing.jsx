@@ -54,7 +54,7 @@ export default function Landing() {
         <div className="relative mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2 lg:items-center lg:py-28">
           <div className="animate-fade-in">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-xs font-semibold text-primary">
-              <Star className="size-3.5 fill-primary" /> Dublin’s online taxi booker
+              <Star className="size-3.5 fill-primary" /> Galway’s online taxi booker
             </span>
             <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
               Book a taxi online,
@@ -125,7 +125,7 @@ export default function Landing() {
           <ServiceCard
             icon={<Plane className="size-5" />}
             title="Airport Taxis"
-            desc="Heading away with family or on a business trip? Get to Dublin Airport safely and on time."
+            desc="Heading away with family or on a business trip? Get to Galway Airport safely and on time."
             to="/business/airport-transfers"
           />
           <ServiceCard

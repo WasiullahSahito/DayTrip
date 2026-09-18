@@ -13,8 +13,6 @@ import {
   Car,
   Plane,
   Calculator,
-  QrCode,
-  PresentationIcon,
 } from 'lucide-react'
 import Logo from './Logo'
 import Button from '../ui/Button'
@@ -26,20 +24,17 @@ const BUSINESS_ITEMS = [
   { title: 'Healthcare', description: 'Patient and carer transportation, booked quickly for those in need.', icon: <HeartPulse className="size-4.5" />, to: '/business/healthcare' },
   { title: 'Hospitality', description: 'Guest or visitor bookings — schedule reliable taxis for your venue.', icon: <Hotel className="size-4.5" />, to: '/business/hospitality' },
   { title: 'Public Sector', description: 'Helping government offices move efficiently and within budget.', icon: <Landmark className="size-4.5" />, to: '/public-sector' },
-  { title: 'Get Demo', description: 'See DayTrip Business in action with a guided walkthrough.', icon: <PresentationIcon className="size-4.5" />, to: '/get-demo' },
   { title: 'Book Now', description: 'Start a booking straight away — sign in or register to confirm.', icon: <Car className="size-4.5" />, to: '/book' },
 ]
 
 const PERSONAL_ITEMS = [
-  { title: 'Taxi', description: 'Personalised Dublin taxis — book a taxi your way.', icon: <Car className="size-4.5" />, to: '/#personal' },
+  { title: 'Taxi', description: 'Personalised Galway taxis — book a taxi your way.', icon: <Car className="size-4.5" />, to: '/#personal' },
   { title: 'Book Now', description: 'Enjoy the full DayTrip booking experience — create your account.', icon: <Car className="size-4.5" />, to: '/book' },
 ]
 
 const SERVICES_ITEMS = [
   { title: 'Airport Taxi', description: 'Airspeed journeys — elevating your airport travel experience.', icon: <Plane className="size-4.5" />, to: '/business/airport-transfers' },
   { title: 'Fare Estimator', description: "Your fare guide — calculate your journey's cost with ease.", icon: <Calculator className="size-4.5" />, to: '/business/fare-estimator' },
-  { title: 'QR Taxi Booker', description: 'Scan to book — place a code in high-traffic areas for guests.', icon: <QrCode className="size-4.5" />, to: '/business/qr-booker' },
-  { title: 'Business Blog', description: 'Insights on business travel and guest transport.', icon: <Briefcase className="size-4.5" />, to: '/business/blog' },
 ]
 
 export default function MarketingHeader() {

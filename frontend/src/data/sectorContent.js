@@ -40,7 +40,7 @@ export const SECTOR_CONTENT = {
       'From employee commutes to airport transfers and client events, give your team a single, accountable way to book taxis — on the web, in the app, or by phone.',
     heroBullets: ['Employee travel & airport transfers', 'Corporate events & guest bookings', 'Centralised billing, no expense claims'],
     primaryCta: { label: 'Register for Free', to: '/register' },
-    secondaryCta: { label: 'Get Demo', to: '/get-demo' },
+    secondaryCta: { label: 'Talk to sales', to: '/contact' },
     features: [
       { icon: Briefcase, title: 'Employee travel', desc: 'Everyday commutes and client meetings, booked in seconds and billed to the company account.' },
       { icon: Plane, title: 'Airport transfers', desc: 'Reliable pickups and drop-offs for travelling staff, with flight-aware scheduling.' },
@@ -61,7 +61,7 @@ export const SECTOR_CONTENT = {
       title: 'Set up your business account today',
       description: 'Free to register — add users, set spending controls, and start booking in minutes.',
       primary: { label: 'Register for Free', to: '/register' },
-      secondary: { label: 'Talk to sales', to: '/get-demo' },
+      secondary: { label: 'Talk to sales', to: '/contact' },
     },
   },
 
@@ -73,7 +73,7 @@ export const SECTOR_CONTENT = {
       'Coordinate non-emergency patient transport, carer journeys, and equipment delivery with priority booking and full visibility over every trip.',
     heroBullets: ['Patient appointments & discharge transport', 'Carer & visitor bookings', 'Wheelchair-accessible vehicles on request'],
     primaryCta: { label: 'Register for Free', to: '/register' },
-    secondaryCta: { label: 'Apply Here', to: '/get-demo' },
+    secondaryCta: { label: 'Contact us', to: '/contact' },
     features: [
       { icon: Stethoscope, title: 'Patient appointments', desc: 'Reliable transport to and from outpatient appointments, booked well ahead of time.' },
       { icon: UserRoundPlus, title: 'Carer transportation', desc: 'Get carers and support workers where they need to be, on a predictable schedule.' },
@@ -94,7 +94,7 @@ export const SECTOR_CONTENT = {
       title: 'Bring reliable transport to your care team',
       description: 'From single clinics to hospital trusts — set up an account that fits your service.',
       primary: { label: 'Register for Free', to: '/register' },
-      secondary: { label: 'Apply for an account', to: '/get-demo' },
+      secondary: { label: 'Apply for an account', to: '/contact' },
     },
   },
 
@@ -106,7 +106,7 @@ export const SECTOR_CONTENT = {
       'Hotels, B&Bs, and guesthouses use DayTrip to arrange guest transport in seconds — no app download, no waiting on hold, no extra work for reception.',
     heroBullets: ['Guest bookings from reception in seconds', 'QR codes guests can scan themselves', 'Airport meet & greet for arrivals'],
     primaryCta: { label: 'Get Web Booker', to: '/register' },
-    secondaryCta: { label: 'Get Demo', to: '/get-demo' },
+    secondaryCta: { label: 'Contact us', to: '/contact' },
     features: [
       { icon: BedDouble, title: 'Guest bookings', desc: 'Book a taxi for any guest directly from the Web Booker — no phone queue required.' },
       { icon: ClipboardList, title: 'Booking templates', desc: 'Save common journeys (airport, station, city centre) for one-tap rebooking.' },
@@ -139,7 +139,7 @@ export const SECTOR_CONTENT = {
       'Government offices and public bodies use DayTrip for cost-efficient, accountable transport — with the security controls procurement expects.',
     heroBullets: ['Auditable, itemised billing', 'PIN-protected & time-restricted bookings', 'Phone, web, and app booking channels'],
     primaryCta: { label: 'Get DayTrip', to: '/register' },
-    secondaryCta: { label: 'Apply Here', to: '/get-demo' },
+    secondaryCta: { label: 'Contact us', to: '/contact' },
     features: [
       { icon: Landmark, title: 'Cost efficiency', desc: 'Consolidated invoicing and transparent fares make budgeting straightforward.' },
       { icon: Clock, title: 'Flexible booking', desc: 'Book ahead for scheduled visits or on-demand for same-day travel needs.' },
@@ -160,7 +160,7 @@ export const SECTOR_CONTENT = {
       title: 'Bring accountable transport to your office',
       description: 'Set up a public-sector account with the controls your procurement team needs.',
       primary: { label: 'Get DayTrip', to: '/register' },
-      secondary: { label: 'Apply for an account', to: '/get-demo' },
+      secondary: { label: 'Apply for an account', to: '/contact' },
     },
   },
 }

@@ -7,11 +7,11 @@ const RECENTS_KEY = 'recents'
 
 async function mockReverseGeocode() {
   await delay(500)
-  // Mock "use my current location" — resolves to a plausible Dublin city-centre point.
+  // Mock "use my current location" — resolves to a plausible Galway city-centre point.
   return {
     id: 'current',
     label: 'Your current location',
-    secondary: 'Dublin City Centre',
+    secondary: 'Galway City Centre',
     lat: 53.3498,
     lng: -6.2603,
   }

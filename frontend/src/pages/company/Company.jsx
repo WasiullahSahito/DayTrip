@@ -6,22 +6,22 @@ import FeatureCard from '../../components/common/FeatureCard'
 import CTABand from '../../components/common/CTABand'
 
 const STATS = [
-  { value: '2013', label: 'Founded in Dublin' },
+  { value: '2013', label: 'Founded in Galway' },
   { value: '1,000+', label: 'Drivers on the network' },
   { value: '24/7', label: 'Booking & support' },
 ]
 
 export default function Company() {
-  usePageMeta('About DayTrip', 'DayTrip is Dublin’s taxi booking platform for individuals and businesses — online, in-app, or by phone.')
+  usePageMeta('About DayTrip', 'DayTrip is Galway’s taxi booking platform for individuals and businesses — online, in-app, or by phone.')
 
   return (
     <div>
       <section className="bg-ink py-20">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Moving Dublin, reliably</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Moving Galway, reliably</h1>
           <p className="mt-4 text-white/70">
             DayTrip connects passengers and businesses with a professional taxi network across
-            Dublin — booked online, in the app, or by phone.
+            Galway — booked online, in the app, or by phone.
           </p>
         </div>
       </section>
@@ -44,7 +44,7 @@ export default function Company() {
             <FeatureCard icon={<ShieldCheck className="size-5" />} title="Safety first" description="Every driver on the network is licensed and insured." />
             <FeatureCard icon={<Car className="size-5" />} title="Always available" description="24/7 booking across web, app, and phone." />
             <FeatureCard icon={<Users className="size-5" />} title="For everyone" description="Personal riders and businesses of every size." />
-            <FeatureCard icon={<MapPin className="size-5" />} title="Local focus" description="Purpose-built for Dublin, from the ground up." />
+            <FeatureCard icon={<MapPin className="size-5" />} title="Local focus" description="Purpose-built for Galway, from the ground up." />
           </div>
         </div>
       </section>

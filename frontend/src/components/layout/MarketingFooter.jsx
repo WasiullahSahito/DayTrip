@@ -22,8 +22,6 @@ export default function MarketingFooter() {
             { label: 'Healthcare', to: '/business/healthcare' },
             { label: 'Hospitality', to: '/business/hospitality' },
             { label: 'Public Sector', to: '/public-sector' },
-            { label: 'Business Blog', to: '/business/blog' },
-            { label: 'Get Demo', to: '/get-demo' },
           ]}
         />
         <FooterColumn
@@ -38,14 +36,12 @@ export default function MarketingFooter() {
           links={[
             { label: 'Airport Taxi', to: '/business/airport-transfers' },
             { label: 'Fare Estimator', to: '/business/fare-estimator' },
-            { label: 'QR Taxi Booker', to: '/business/qr-booker' },
           ]}
         />
         <FooterColumn
           title="Company"
           links={[
             { label: 'Home', to: '/' },
-            { label: 'Our Story', to: '/company/our-story' },
             { label: 'Contact Us', to: '/contact' },
             { label: 'Privacy Policy', to: '/privacy' },
             { label: 'Cookie Policy', to: '/cookie-policy' },
@@ -64,7 +60,7 @@ export default function MarketingFooter() {
               <Mail className="size-3.5" /> booking@daytrip.ie
             </a>
             <span className="flex items-center gap-1.5">
-              <MapPin className="size-3.5" /> Dublin, Ireland
+              <MapPin className="size-3.5" /> Galway, Ireland
             </span>
           </span>
         </div>

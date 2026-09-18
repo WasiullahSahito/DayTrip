@@ -53,7 +53,7 @@ export default function Contact() {
           <InfoCard icon={<Phone className="size-5" />} title="Bookings" lines={['+353 89 429 8440', '24 hours']} />
           <InfoCard icon={<Phone className="size-5" />} title="General enquiries" lines={['+353 89 429 8440', 'Mon–Fri, 9am–5pm']} />
           <InfoCard icon={<Mail className="size-5" />} title="Email" lines={['booking@daytrip.ie']} />
-          <InfoCard icon={<MapPin className="size-5" />} title="Address" lines={['Unit 21, Parkmore Industrial Estate', 'Long Mile Road, Dublin']} />
+          <InfoCard icon={<MapPin className="size-5" />} title="Address" lines={['Unit 21, Parkmore Industrial Estate', 'Long Mile Road, Galway']} />
         </div>
 
         <Card className="!p-7">
