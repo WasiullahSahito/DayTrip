@@ -18,6 +18,13 @@ class DatabaseSeeder extends Seeder
         $this->call(VehicleTypeSeeder::class);
         $this->call(DriverSeeder::class);
 
+        // Demo accounts (with a known password, one of them an admin) are for
+        // local development only — never create them on a real server. Create
+        // the real admin by registering, then setting is_admin (see deploy/DEPLOY.md).
+        if (! app()->environment('local', 'testing')) {
+            return;
+        }
+
         User::factory()->create([
             'first_name' => 'Aoife',
             'last_name' => 'Murphy',
@@ -35,7 +42,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::factory()->create([
             'first_name' => 'Admin',
             'last_name' => 'User',
-            'email' => 'admin@lynk.ie',
+            'email' => 'admin@daytrip.ie',
             'password' => 'password123',
             'phone' => '+353879990000',
             'account_type' => 'personal',
