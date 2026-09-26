@@ -1,70 +1,103 @@
-# Lynk
+# Daytrip
 
-Lynk is a taxi booking platform prototype for passengers, business customers, dispatchers, and administrators. It combines a Laravel API with a separate React single-page application for route quoting, booking, account management, saved journeys, Stripe payments, and fleet administration.
+Daytrip is a taxi booking platform for passengers, business customers and administrators. A Laravel 13 JSON API and a separate React 19 single-page application provide fare quotes, bookings, account management, saved journeys, card payments (Stripe and SumUp) and fleet administration.
 
-The repository contains two independent frontend toolchains: the Laravel root asset pipeline and the user-facing React app in `frontend/`. The React app calls the Laravel API over HTTP; it is not served by Laravel's default web route.
+Live site: <https://daytrip.ie> (hosted on a Contabo VPS)
+
+The repository holds two independent JavaScript toolchains: the Laravel root asset pipeline and the user-facing React app in `frontend/`. The React app calls the Laravel API over HTTP. In production a single domain serves both: the React build is copied into Laravel's `public/` folder and the API answers under `/api`.
+
+> The project was previously called "Lynk". A few internal identifiers still carry that name (the `lynk:auth-expired` browser event, the `lynk-clone:token:v2` localStorage key and the `demo@lynk.ie` local seed account). They are not user-visible and can be renamed later.
 
 ## Features
 
-- Public landing, business, company, contact, demo-request, policy, and fare-estimator pages.
-- User registration, login, logout, profile updates, password reset, and bearer-token session persistence.
-- Server-side route distance, duration, and fare calculation from pickup, stops, destination, and vehicle rates.
-- Public vehicle-type listing and fare quotes before authentication.
-- Authenticated cash or card bookings, scheduled trips, return journeys, flight details, notes, and idempotent creation with `Idempotency-Key`.
-- Booking history, active bookings, cancellation, and server-authoritative booking status.
+- Public landing, business, company, contact, demo-request, policy and fare-estimator pages.
+- Registration, login, logout, profile updates, password reset and bearer-token sessions.
+- **Fare calculation on the server** from route distance, number of passengers and waiting time (see [Pricing](#pricing)).
+- **Passenger seat check:** a booking for more passengers than the chosen vehicle seats is refused, and the message names the smallest vehicle that fits (for example "please select a Regular 6 Seater").
+- Public vehicle-type listing and fare quotes before login.
+- Cash or card bookings, scheduled trips, return journeys, flight details, notes and idempotent creation with `Idempotency-Key`.
+- Booking history, active bookings, cancellation and server-authoritative booking status.
 - Saved favourite addresses and reusable quick-booking templates.
-- Stripe PaymentIntents, SetupIntents, saved card management, default payment methods, and signed webhook processing.
-- Customer and demo-request forms with optional email notification to the configured admin inbox.
-- Admin dashboard statistics, driver management, vehicle-type management, booking search/filtering, status changes, and driver assignment.
-- Responsive React UI with Google Maps address search/geocoding when configured, browser geolocation, Stripe Elements, and Tailwind CSS.
+- **Two card providers:** Stripe (PaymentIntents, SetupIntents, signed webhooks) and SumUp (saved cards charged from the server). Cards from both providers appear in one list with a single default.
+- Contact and demo-request forms with email notification to the configured admin inbox.
+- **Admin area:** dashboard statistics, booking search/filter/status changes/driver assignment, driver management, vehicle-type management and **editable fare rates**.
+- Responsive React UI with Google Maps address search and geocoding (when a key is configured), browser geolocation, Stripe Elements, the SumUp Card Widget and Tailwind CSS.
 
-Some UI behavior is intentionally demo-oriented: frontend live-status progression and driver messaging are simulated locally, while the API remains authoritative for persisted booking/payment status.
+Some UI behaviour is intentionally demo-oriented: the live status progression and driver messaging on the booking screen are simulated in the browser, and the trip countdown uses a simple distance/average-speed estimate. The API remains authoritative for the persisted booking and payment status.
+
+## Site Map
+
+The React app has four areas, each with its own layout (`frontend/src/layouts/`). All routes are defined in `frontend/src/App.jsx`.
+
+| Area | Routes |
+| --- | --- |
+| **Public site** | `/` home, `/book`, `/get-demo`, `/contact`, `/company`, `/company/our-story`, `/terms`, `/privacy`, `/cookie-policy` |
+| **Business pages** | `/business`, `/business/corporate`, `/business/healthcare`, `/business/hospitality`, `/public-sector`, `/business/plans`, `/business/payment-options`, `/business/qr-booker`, `/business/airport-transfers`, `/business/fare-estimator`, `/business/blog` |
+| **Sign-in** | `/login`, `/register`, `/forgot-password`, `/reset-password` |
+| **Customer app** (signed in) | `/app/home` (book a ride), `/app/active/:id` (live booking), `/app/history`, `/app/favourites`, `/app/quick-bookings`, `/app/payment-methods`, `/app/profile`, `/app/reports` |
+| **Admin** (admins only) | `/admin` (dashboard), `/admin/bookings`, `/admin/drivers`, `/admin/vehicle-types`, `/admin/fare-settings` |
+
+The site is a single-page app, so every URL above returns the same HTML shell and React Router draws the page. Access to customer and admin data is enforced by the API (bearer token and, for admin, the `is_admin` flag), not by the page URL.
+
+## Pricing
+
+```
+Fare = base fare + (price per km x km) + (charge per passenger x passengers) + (waiting charge per minute x waiting minutes)
+```
+
+| Rate | Default |
+| --- | --- |
+| Base fare | 7.40 EUR |
+| Price per km | 2.20 EUR |
+| Charge per passenger | 1.00 EUR |
+| Waiting charge | 1.00 EUR per minute, for at most 60 minutes |
+
+Example: 10 km with 3 passengers and no waiting = 7.40 + 22.00 + 3.00 = **32.40 EUR**.
+
+- Distance is the straight-line (haversine) distance between the points, multiplied by 1.35 to allow for roads.
+- The fare is always computed on the server (`VehicleType::calculateFare`). Client-supplied fares, distances and statuses are ignored. The per-vehicle rate columns are no longer used for pricing.
+- Admins change the base fare, price per km, passenger charge and per-minute waiting charge at `/admin/fare-settings`. Saved values live in the `settings` table (`FareSettings` service) and override the defaults in `config/fare.php`. Changes apply to new quotes and bookings immediately; existing bookings keep the fare they were created with.
+- The frontend keeps a copy of the formula (`estimateFare` in `frontend/src/data/vehicles.js`) for live previews and loads the current rates from the public `GET /api/fare-settings` endpoint. Keep both in sync if the formula changes.
 
 ## Tech Stack
 
 ### Backend
 
-- PHP `^8.3`
-- Laravel `^13.17`
-- Laravel Sanctum `^4.0` for API tokens
-- Laravel Eloquent and migrations
-- PostgreSQL for the configured application database
-- PHPUnit `^12.5.12` and Laravel testing utilities
-- Laravel Pail, Pint, Tinker, and PAO as development dependencies
+- PHP `^8.3`, Laravel `^13.17`, Laravel Sanctum for API tokens
+- PostgreSQL (required for real use; tests use in-memory SQLite)
+- PHPUnit, Laravel Pint, Pail, Tinker and PAO for development
 
 ### Frontend
 
-- React `^19.2.8`
-- Vite `^8.2.2` in `frontend/`
-- React Router DOM `^7.18.2`
-- Tailwind CSS with the Vite plugin
-- Lucide React icons
-- ESLint `^10.9.0`
+- React `^19`, Vite `^8`, React Router DOM `^7`
+- Tailwind CSS 4 with the Vite plugin, Lucide React icons, ESLint
 
-### Integrations and infrastructure
+### Integrations
 
-- Stripe PHP SDK `^21.3`, Stripe.js, and React Stripe.js for payments.
-- Google Maps JavaScript API Places and Geocoding libraries for address lookup and map features.
-- SMTP mail for booking confirmations, password-reset mail, contact messages, and demo requests.
-- Database-backed queues, cache, and sessions in the example application configuration.
-- No Docker, CI workflow, hosting manifest, or deployment provider configuration is present in this repository.
+- **Stripe:** Stripe PHP SDK, Stripe.js and React Stripe.js.
+- **SumUp:** REST API from the backend plus SumUp's Card Widget in the browser.
+- **Google Maps:** Places and Geocoding for address search.
+- **SMTP mail** for booking confirmations, password resets, contact messages and demo requests.
+- Database-backed queues, cache and sessions.
+- Production hosting: Contabo VPS with CyberPanel/OpenLiteSpeed, a systemd queue worker and a cron-driven scheduler (see [Deployment](#deployment)).
+- An optional `Dockerfile` for the API (PHP 8.3 CLI image with `pdo_pgsql`) is included.
 
 ## Architecture
 
-The application is split into two independently runnable applications:
+1. `frontend/` is a React/Vite SPA. It handles routing, UI state, the browser copy of the Sanctum token, Google Maps, Stripe Elements and the SumUp widget. All network calls go through `src/services/`; `api.js` adds `Authorization: Bearer <token>` and sends requests to `VITE_API_URL`.
+2. The repository root is a Laravel application. `routes/api.php` exposes the JSON API under `/api`. Controllers are thin: Form Requests validate input, `BookingService`, `PaymentService`, `SumUpService` and `FareSettings` hold the logic, API Resources shape output and Policies guard ownership.
+3. PostgreSQL stores users, vehicle types, bookings, drivers, payments, saved addresses, quick bookings, contact messages, demo requests, processed Stripe webhook IDs and admin-editable settings.
 
-1. `frontend/` is a React/Vite SPA. It handles page routing, UI state, browser storage of the Sanctum token, Google Maps interactions, and Stripe client-side Elements. Its API client sends JSON requests to `VITE_API_URL` and adds `Authorization: Bearer <token>` when a token exists.
-2. The repository root is a Laravel 13 application. `routes/api.php` exposes the JSON API under `/api`; controllers validate input through Form Requests, services calculate fares and coordinate payment/booking workflows, and API Resources shape responses.
-3. PostgreSQL stores users, vehicle types, bookings, drivers, payments, saved addresses, quick bookings, contact messages, demo requests, and processed Stripe webhook IDs. Foreign keys and Eloquent relationships connect the records.
+Every API response uses `{ "success": ..., "message": "...", "data" | "errors": ... }`. `ApiExceptionRenderer` turns all exceptions under `/api` into this shape without leaking traces or SQL.
 
 Typical booking flow:
 
-1. The frontend obtains coordinates through Google Maps or its local fallback and requests `/api/fare-quote`.
-2. An authenticated user submits `/api/bookings`. The backend recalculates distance, duration, and fare from coordinates and the selected vehicle type; client-supplied fare, distance, duration, and status are not accepted.
-3. Cash bookings are confirmed immediately. Card bookings begin as `pending_payment`; `/api/payments/intents` creates a Stripe PaymentIntent from the stored server-side fare.
-4. Stripe calls `/api/stripe/webhook`. The signature is verified, event IDs are recorded idempotently, and payment/booking state is updated.
-
-The Laravel web route currently returns the default `welcome` view. Deploy the React SPA separately, or add an explicit integration if Laravel should serve its built files.
+1. The frontend gets coordinates (Google Maps or a local fallback) and calls `POST /api/fare-quote` with the passengers and waiting time.
+2. A signed-in user submits `POST /api/bookings`. The backend recomputes distance and fare, checks the passenger count against the vehicle's seats and stores the booking.
+3. Cash bookings are confirmed immediately. Card bookings start as `pending_payment`:
+   - **Stripe:** `POST /api/payments/intents` creates a PaymentIntent from the stored fare; Stripe calls `POST /api/stripe/webhook`, whose signature is verified and event ID stored, and the booking is confirmed.
+   - **SumUp:** `POST /api/payments/sumup/charge` charges the chosen saved SumUp card from the server and confirms the booking straight away (there is no SumUp webhook).
+4. Confirmation emails are queued and sent by a queue worker.
 
 ## Project Structure
 
@@ -72,60 +105,49 @@ The Laravel web route currently returns the default `welcome` view. Deploy the R
 .
 |-- app/
 |   |-- Console/Commands/          Scheduled booking completion command
-|   |-- Http/Controllers/Api/      Public, customer, and admin API controllers
+|   |-- Http/Controllers/Api/      Public, customer and admin API controllers
 |   |-- Http/Requests/             Validated request payloads
 |   |-- Http/Resources/            JSON response resources
-|   |-- Models/                    Eloquent models and relationships
-|   |-- Notifications/             Booking and form-submission notifications
-|   |-- Policies/                  Booking, favourite, and quick-booking access
-|   `-- Services/                  Booking and Stripe payment workflows
-|-- bootstrap/                     Laravel application and middleware setup
-|-- config/                        Application, database, mail, CORS, and services config
-|-- database/
-|   |-- migrations/                PostgreSQL schema migrations
-|   `-- seeders/                   Vehicle, driver, and demo-user seed data
+|   |-- Models/                    Eloquent models (including Setting)
+|   |-- Notifications/             Booking and form-submission emails
+|   |-- Policies/                  Booking, favourite and quick-booking access
+|   `-- Services/                  BookingService, PaymentService, SumUpService, FareSettings
+|-- config/                        App, database, mail, CORS, services and fare (config/fare.php) config
+|-- database/                      Migrations and seeders
+|-- deploy/                        VPS deployment guide, env template, queue service, deploy script
 |-- frontend/
-|   |-- src/components/            Reusable React UI and booking components
+|   |-- src/components/            Reusable UI and booking components
 |   |-- src/context/               Authentication and toast state
-|   |-- src/layouts/               Marketing, auth, app, and admin layouts
-|   |-- src/pages/                 Public, booking, account, and admin pages
-|   |-- src/services/              API, auth, booking, maps, and Stripe clients
-|   `-- package.json               Standalone React/Vite scripts and dependencies
-|-- resources/                     Laravel Blade/CSS/JS assets
-|-- routes/api.php                 JSON API route definitions
-|-- routes/web.php                 Root web route
+|   |-- src/hooks/                 e.g. useFareSettings (live fare rates)
+|   |-- src/layouts/               Marketing, auth, app and admin layouts
+|   |-- src/pages/                 Public, booking, account and admin pages
+|   |-- src/services/              API, auth, booking, payment, maps, Stripe and SumUp clients
+|   `-- package.json               Standalone React/Vite scripts
+|-- routes/api.php                 JSON API routes
 |-- tests/                         PHPUnit unit and feature tests
-|-- composer.json                  PHP dependencies and Laravel scripts
-|-- package.json                   Root Laravel Vite asset scripts
+|-- Dockerfile                     Optional API image (not used on the VPS)
 `-- phpunit.xml                    Test suites and test environment overrides
 ```
 
 ## Requirements
 
-- PHP 8.3 or newer, matching `composer.json`.
-- Composer.
-- Node.js and npm compatible with the declared Vite 8 toolchains. An exact Node version is not pinned in the repository.
-- A compatible PostgreSQL installation for the configured application database. The `.env.example` explicitly marks PostgreSQL as mandatory for normal application use.
-- PHP PostgreSQL PDO support (`pdo_pgsql`).
-- SMTP credentials for email features.
-- Stripe account credentials for card payments.
-- A Google Maps API key with the required Places and Geocoding APIs enabled for live address search.
+- PHP 8.3+ with `pdo_pgsql`, Composer.
+- Node.js and npm (no exact version is pinned).
+- PostgreSQL.
+- SMTP credentials for email.
+- Stripe credentials for Stripe card payments.
+- A SumUp API key and merchant code for SumUp card payments (optional).
+- A Google Maps API key with Places and Geocoding enabled (optional; without it the app uses a mock Dublin address book).
 
-## Installation
-
-From the repository root:
+## Local Installation
 
 ```bash
 composer install
-copy .env.example .env
+copy .env.example .env        # macOS/Linux: cp .env.example .env
 php artisan key:generate
 ```
 
-On macOS/Linux, use `cp .env.example .env` instead of `copy`.
-
-Create a PostgreSQL database, then set `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` in `.env`. Keep `DB_CONNECTION=pgsql` unless you are intentionally changing the application configuration.
-
-Install both JavaScript dependency sets:
+Create a PostgreSQL database and set `DB_DATABASE`, `DB_USERNAME` and `DB_PASSWORD` in `.env` (keep `DB_CONNECTION=pgsql`; do not set `DB_URL` unless you mean to). Install both sets of JavaScript dependencies:
 
 ```bash
 npm install
@@ -134,217 +156,174 @@ npm install
 cd ..
 ```
 
-Run migrations and the included seeders:
+Run migrations and seeders:
 
 ```bash
 php artisan migrate --seed
 ```
 
-The seeders create five vehicle types, five drivers, a demo customer (`demo@lynk.ie`), and an admin user (`admin@lynk.ie`). The seeded demo passwords are `password123`; change or remove these accounts outside local development.
-
-No `storage:link` command is required by the current source. No user-upload storage flow is implemented.
+The seeders create five vehicle types and five sample drivers. **Only in the `local` and `testing` environments** they also create a demo customer (`demo@lynk.ie`) and an admin (`admin@daytrip.ie`), both with the password `password123`. They are never created on a production server, so create your real admin as described under [Deployment](#deployment).
 
 ## Environment Configuration
 
-Copy `.env.example` to `.env` and replace blank values with local or deployment values. Never commit `.env` or expose backend secrets to the Vite build.
+Copy `.env.example` to `.env` and fill in the values. Never commit `.env`, and never put backend secrets in a `VITE_` variable. For production use the template in `deploy/.env.production.example`.
 
 | Variable | Used for |
 | --- | --- |
-| `APP_NAME`, `APP_ENV`, `APP_KEY`, `APP_DEBUG`, `APP_URL` | Laravel identity, encryption, debugging, and base URL. |
+| `APP_NAME`, `APP_ENV`, `APP_KEY`, `APP_DEBUG`, `APP_URL` | Laravel identity, encryption, debugging (keep `false` in production) and base URL. |
 | `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | PostgreSQL connection. |
-| `BCRYPT_ROUNDS` | Password hashing cost. |
-| `LOG_CHANNEL`, `LOG_STACK`, `LOG_LEVEL` | Laravel logging. |
-| `SESSION_DRIVER`, `SESSION_LIFETIME`, `SESSION_ENCRYPT`, `SESSION_DOMAIN` | Laravel session configuration. |
-| `QUEUE_CONNECTION` | Queue backend; the example uses the database queue. |
-| `CACHE_STORE` | Cache backend; the example uses the database cache. |
-| `MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | SMTP and outgoing mail settings. |
+| `LOG_CHANNEL`, `LOG_STACK`, `LOG_LEVEL` | Logging. |
+| `SESSION_DRIVER`, `QUEUE_CONNECTION`, `CACHE_STORE` | Database-backed sessions, queue and cache. |
+| `MAIL_MAILER`, `MAIL_SCHEME`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | Outgoing mail. |
 | `ADMIN_NOTIFICATION_EMAIL` | Inbox for contact and demo-request notifications. |
-| `STRIPE_KEY` | Stripe publishable/backend service configuration value. |
-| `STRIPE_SECRET` | Backend-only Stripe API secret. Never expose it to Vite. |
-| `STRIPE_WEBHOOK_SECRET` | Backend-only secret used to verify `Stripe-Signature`. |
-| `FRONTEND_URL` | Allowed CORS origin(s), comma-separated for multiple origins. |
-| `VITE_API_URL` | React API base URL; defaults to `http://localhost:8000/api`. |
-| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe.js publishable key for the React app. |
-| `VITE_GOOGLE_MAPS_API_KEY` | Browser-visible Google Maps key for Places and Geocoding. Restrict it to the SPA origins. |
+| `STRIPE_KEY`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET` | Stripe. The secret and webhook secret are backend-only. |
+| `SUMUP_API_KEY`, `SUMUP_MERCHANT_CODE` | SumUp (backend-only). |
+| `SUMUP_SETUP_AMOUNT` | EUR amount on the checkout that saves a SumUp card. `0` saves the card without charging it; use a small amount if SumUp rejects zero. |
+| `FRONTEND_URL` | The site origin, used for CORS and the password-reset link in emails. Use exactly one origin. |
+| `VITE_API_URL` | React API base URL (default `http://localhost:8000/api`; `https://daytrip.ie/api` in production). |
+| `VITE_STRIPE_PUBLISHABLE_KEY` | Stripe.js publishable key (must match the mode of `STRIPE_SECRET`). |
+| `VITE_GOOGLE_MAPS_API_KEY` | Browser Google Maps key. Restrict it to your site's origin(s). |
 
-The frontend variables belong in `frontend/.env` or another environment file loaded by the frontend Vite process. Only variables prefixed with `VITE_` are bundled into client code.
+`VITE_` variables go in `frontend/.env` (development) or `frontend/.env.production` (production build) and are baked into the bundle at build time. A template is in `frontend/.env.production.example`.
 
-## Database Setup
+## Database
 
-The normal application database is PostgreSQL. Migrations create or modify:
+Migrations create or change:
 
-- `users` and `personal_access_tokens` for accounts and Sanctum tokens.
-- `vehicle_types` for passenger capacity, fare rates, ETA, and active state.
-- `bookings` for routes, fare snapshots, status, payment method, scheduling, driver snapshots, and idempotency keys.
-- `drivers` for the admin-managed driver pool and booking assignment link.
-- `payments` for Stripe PaymentIntent metadata and status.
-- `stripe_webhook_events` for idempotent webhook processing.
-- `favourite_addresses` and `quick_bookings` for user-owned reusable journey data.
-- `contact_messages` and `demo_requests` for public form submissions.
+- `users` and `personal_access_tokens`: accounts and Sanctum tokens (users also hold Stripe/SumUp customer references and the default card provider).
+- `vehicle_types`: passenger capacity, ETA and active state (the old rate columns remain but do not affect pricing).
+- `bookings`: routes, fare, passengers, waiting minutes, status, payment method, scheduling, driver snapshots and idempotency keys.
+- `drivers`, `payments` (Stripe and SumUp payments), `stripe_webhook_events`.
+- `favourite_addresses`, `quick_bookings`, `contact_messages`, `demo_requests`.
+- `settings`: admin-editable key/value settings (the fare rates).
 
-Run `php artisan migrate --seed` for a fresh local database. PHPUnit overrides the database to SQLite `:memory:` and uses the test environment values from `phpunit.xml`; it does not require a PostgreSQL test database.
+PHPUnit overrides the database with SQLite `:memory:`, so tests need no PostgreSQL.
 
-The scheduler registers `bookings:complete-due` every five minutes. It marks confirmed, non-scheduled bookings completed after their estimated duration, so a deployed environment must run Laravel's scheduler for that behavior.
+The scheduler runs `bookings:complete-due` every five minutes; it marks confirmed, non-scheduled bookings completed after their estimated duration. Run Laravel's scheduler wherever the app is deployed.
 
-## Running the Application
+## Running Locally
 
-Use separate terminals for the API, the React SPA, and background processing:
+Use separate terminals:
 
 ```bash
-# Terminal 1: Laravel API at http://localhost:8000
-php artisan serve
-
-# Terminal 2: React SPA, normally at the Vite default http://localhost:5173
-cd frontend
-npm run dev
-
-# Terminal 3: process database-backed queued notifications
-php artisan queue:work
-
-# Terminal 4: run the scheduled booking completion command
-php artisan schedule:work
+php artisan serve              # API at http://localhost:8000
+cd frontend && npm run dev     # SPA at http://localhost:5173
+php artisan queue:work         # queued emails
+php artisan schedule:work      # scheduled booking completion
 ```
 
-The exact Vite port is not hard-coded in `frontend/vite.config.js`; Vite uses its default unless overridden with `--port`. Set `VITE_API_URL=http://localhost:8000/api` and `FRONTEND_URL=http://localhost:5173` for this local arrangement.
+Set `VITE_API_URL=http://localhost:8000/api` and `FRONTEND_URL=http://localhost:5173`. Build the SPA with `cd frontend && npm run build` (output in `frontend/dist`).
 
-For production frontend assets:
+## API Overview
 
-```bash
-cd frontend
-npm run build
-npm run preview
-```
+Base path `/api`. Authentication is `Authorization: Bearer <sanctum-token>`.
 
-The root asset pipeline is separate:
+### Public
 
-```bash
-npm run build
-```
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /auth/register`, `POST /auth/login` | Create an account or log in. |
+| `POST /auth/forgot-password`, `POST /auth/reset-password` | Password reset. |
+| `GET /vehicle-types` | Active vehicle types. |
+| `GET /fare-settings` | Current fare rates (`baseFare`, `perKm`, `perPassenger`, `waitingPerMinute`, `maxWaitingMinutes`). |
+| `POST /fare-quote` | Fare for a route. Body: pickup/destination coordinates; optional `passengers`, `waitingMinutes` (0-60), `vehicleTypeId`. Each vehicle in the response includes `available` and a `message` when the party is too big. |
+| `POST /contact`, `POST /demo-requests` | Public forms. |
+| `POST /stripe/webhook` | Stripe events (signature verified). |
 
-## API Documentation
+### Signed-in customers
 
-The API base path is `/api`. Successful responses use `{ "success": true, "message": "...", "data": ... }`; validation and application failures use a corresponding error envelope. Authentication uses `Authorization: Bearer <sanctum-token>`.
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /auth/logout`, `GET /auth/user`, `PATCH /auth/profile` | Session and profile. |
+| `GET /bookings`, `GET /bookings/{id}`, `POST /bookings/{id}/cancel` | Booking history, detail and cancellation. |
+| `POST /bookings` | Create a booking. Body includes pickup, destination, optional stops, `vehicleTypeId`, `passengerName`, `phone`, `paymentMethod.type` (`cash`/`card`), optional `passengers` (default 1), `waitingMinutes`, schedule, notes and return journey. Returns 422 on `passengers` if the vehicle is too small. Fare and status are server-controlled. |
+| `GET/POST/DELETE /favourites`, `GET/POST/DELETE /quick-bookings` | Saved addresses and journey templates. |
+| `POST /payments/intents` | Stripe PaymentIntent for a payable card booking. |
+| `POST /payments/sumup/charge` | Pay a booking with a saved SumUp card. Body: `bookingId`, `cardId` (`sumup:<token>`). |
+| `GET /payment-methods` | Saved cards from both providers (`provider`: `stripe` or `sumup`). |
+| `POST /payment-methods/setup-intent`, `POST /payment-methods` | Save a Stripe card. |
+| `POST /payment-methods/sumup/checkout`, `POST /payment-methods/sumup/confirm` | Start and confirm saving a SumUp card (the card form is SumUp's own widget). |
+| `DELETE /payment-methods/{id}`, `POST /payment-methods/{id}/default` | Remove a card or make it the default. |
 
-### Public endpoints
+### Admin (`is_admin` required)
 
-| Method and endpoint | Body/query | Response and behavior |
-| --- | --- | --- |
-| `POST /auth/register` | `firstName`, `lastName`, `email`, `password`, `password_confirmation`, `phone`, `accountType` (`personal`, `business`, or `business-plus`), and `businessName` when required | `201`; user resource and token. |
-| `POST /auth/login` | `email`, `password` | `200`; user resource and token. Wrong credentials return a generic validation error. |
-| `POST /auth/forgot-password` | `email` | `200`; generic message whether or not the account exists. |
-| `POST /auth/reset-password` | `token`, `email`, `password`, `password_confirmation` | `200`; resets the password and revokes existing tokens. |
-| `GET /vehicle-types` | None | Active vehicle types with public display fields. |
-| `POST /fare-quote` | `pickup.lat`, `pickup.lng`, `destination.lat`, `destination.lng`; optional `vehicleTypeId` | `200`; fare, EUR currency, distance, and duration keyed by vehicle type. Calculated server-side. |
-| `POST /contact` | `name`, `email`, `topic`, `message` | `201`; stores the message and optionally notifies `ADMIN_NOTIFICATION_EMAIL`. |
-| `POST /demo-requests` | `companyName`, `name`, `email`, `phone`, `businessType`, optional `users`, `message` | `201`; stores the request and optionally notifies the admin inbox. |
-| `POST /stripe/webhook` | Raw Stripe event body plus `Stripe-Signature` header | `200` for a verified event; `400` for invalid payload/signature. No bearer token; signature verification is required. |
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /admin/stats` | Dashboard statistics. |
+| `GET/POST/PATCH/DELETE /admin/drivers` | Driver management. |
+| `GET/POST/PATCH /admin/vehicle-types` | Vehicle-type management. |
+| `GET /admin/bookings`, `PATCH /admin/bookings/{id}/status`, `POST /admin/bookings/{id}/assign-driver` | Booking management. |
+| `GET/PATCH /admin/fare-settings` | Read and change the fare rates. |
 
-### Authenticated customer endpoints
+All routes are rate limited, with stricter named limits for login, registration, password reset, booking creation, payment intents and contact forms.
 
-All rows in this section require Sanctum bearer authentication.
+## Authentication and Security
 
-| Method and endpoint | Body/query | Response and behavior |
-| --- | --- | --- |
-| `POST /auth/logout` | None | `200`; deletes the current access token. |
-| `GET /auth/user` | None | `200`; current user resource. |
-| `PATCH /auth/profile` | Optional `firstName`, `lastName`, `phone` | `200`; updated user resource. Email, account type, and business name are not accepted. |
-| `GET /bookings` | Optional `status=active\|history`, `per_page` up to 50 | `200`; user-scoped paginated booking data and pagination metadata. |
-| `POST /bookings` | Pickup/destination points (`label`, optional `secondary`, `lat`, `lng`), optional up to three `stops`, `vehicleTypeId`, `passengerName`, `phone`, `paymentMethod.type` (`cash` or `card`), and optional schedule, notes, flight, confirmation email, and return-journey fields | `201`; booking resource. Send `Idempotency-Key` to make retries return the original booking. Fare and status are server-controlled. |
-| `GET /bookings/{booking}` | None | `200`; booking resource if owned by the caller. |
-| `POST /bookings/{booking}/cancel` | None | `200`; cancelled booking if the caller owns it and its status is cancellable. |
-| `GET /favourites` | None | `200`; current user's favourite addresses. |
-| `POST /favourites` | `nickname`, `label`, optional `secondary`, `lat`, `lng` | `201`; created favourite address. |
-| `DELETE /favourites/{favourite}` | None | `200`; remaining user favourites if owned by the caller. |
-| `GET /quick-bookings` | None | `200`; current user's saved journey templates. |
-| `POST /quick-bookings` | `label`, `vehicleTypeId`, pickup point, destination point | `201`; saved template collection. |
-| `DELETE /quick-bookings/{quickBooking}` | None | `200`; remaining templates if owned by the caller. |
-| `POST /payments/intents` | `bookingId` | `200`; Stripe `clientSecret` and payment resource for an owned, payable card booking. Amount is read from the stored booking fare. |
-| `GET /payment-methods` | None | `200`; user's Stripe card metadata only (brand, last four, expiry, default flag). |
-| `POST /payment-methods/setup-intent` | None | `200`; Stripe SetupIntent client secret. |
-| `POST /payment-methods` | `paymentMethodId` | `201`; attaches a Stripe PaymentMethod to the caller's Stripe customer and returns card metadata. |
-| `DELETE /payment-methods/{paymentMethod}` | None | `200`; detaches the caller's Stripe PaymentMethod and returns remaining cards. |
-| `POST /payment-methods/{paymentMethod}/default` | None | `200`; sets the caller's default Stripe PaymentMethod. |
-
-### Admin endpoints
-
-All rows in this section require Sanctum authentication and `is_admin=true`.
-
-| Method and endpoint | Body/query | Response and behavior |
-| --- | --- | --- |
-| `GET /admin/stats` | None | `200`; dashboard statistics. |
-| `GET /admin/drivers` | None | `200`; driver collection. |
-| `POST /admin/drivers` | `name`, `reg`, `car`, `color`; optional `phone`, `rating`, `is_active` | `201`; created driver. |
-| `PATCH /admin/drivers/{driver}` | Any subset of driver fields | `200`; updated driver. |
-| `DELETE /admin/drivers/{driver}` | None | `200`; deletes the driver. Existing booking snapshots remain available and the FK is nullable on delete. |
-| `GET /admin/vehicle-types` | None | `200`; all vehicle types including inactive types and rate fields. |
-| `POST /admin/vehicle-types` | `key`, `name`, `passengers`, `base_fare`, `per_km`, `per_min`, `min_fare`; optional `icon`, `caption`, `eta_mins`, `is_active` | `201`; created vehicle type. |
-| `PATCH /admin/vehicle-types/{vehicleType}` | Any subset of vehicle-type fields | `200`; updated vehicle type. |
-| `GET /admin/bookings` | Optional `status`, `search`, `per_page` up to 50 | `200`; paginated bookings across users. |
-| `PATCH /admin/bookings/{booking}/status` | `status` from the implemented booking status list | `200`; updated admin booking resource. |
-| `POST /admin/bookings/{booking}/assign-driver` | `driverId` | `200`; booking with the assigned driver snapshot. |
-
-All routes are additionally subject to the API throttle middleware and several named throttles for authentication, contact, booking creation, payment intents, and Stripe webhooks.
-
-## Authentication & Authorization
-
-- Laravel Sanctum issues personal access tokens created by registration and login. The SPA stores the token in browser `localStorage` under `lynk-clone:token` and sends it as a bearer token.
-- Logout deletes the current token. Password reset deletes all of the user's existing tokens after a successful reset.
-- Registration accepts an account plan (`personal`, `business`, or `business-plus`), not a self-assigned security role. Admin access is controlled by the database `users.is_admin` boolean and the `admin` middleware.
-- Booking, favourite, and quick-booking policies scope records to their owning user. Admin routes use `auth:sanctum` followed by the admin middleware.
-- Form Requests validate and whitelist input. Fare, route distance, duration, booking status, references, and payment amounts are server-authoritative.
-- Passwords use Laravel's `hashed` cast. Login and password-reset flows deliberately avoid account enumeration in their responses.
-- Stripe card details are collected by Stripe Elements. The API receives Stripe PaymentMethod IDs rather than raw card numbers, expiry, or CVC.
-- The Stripe webhook is unauthenticated by design but requires a valid signature verified with `STRIPE_WEBHOOK_SECRET`; processed event IDs prevent duplicate processing.
-- CORS allows only the configured `FRONTEND_URL` origin(s), and API endpoints use rate limiting.
+- Sanctum bearer tokens are created at registration and login. The SPA keeps the token in `localStorage` and clears it on any `401`.
+- Admin access is the database `users.is_admin` flag plus the `admin` middleware. It cannot be set through registration or the profile endpoint.
+- Policies scope bookings, favourites and quick bookings to their owner.
+- Fare, distance, duration, status, references and payment amounts are never accepted from the client.
+- Card numbers, expiry dates and CVCs are typed into Stripe's or SumUp's own hosted forms and never reach this API. SumUp saved-card ownership is checked before any charge or removal, and SumUp setup results are re-verified with SumUp rather than trusted from the browser.
+- The Stripe webhook requires a valid signature; processed event IDs prevent duplicate handling.
+- CORS allows only `FRONTEND_URL`.
 
 ## Testing
 
-Automated PHPUnit tests are present under `tests/Feature` and `tests/Unit`, including authentication, booking ownership and idempotency, payments, favourites, quick bookings, admin access, driver and vehicle management, smoke coverage, and scheduled booking completion.
-
-Run the full suite from the repository root:
-
 ```bash
-composer run test
+composer run test          # backend
+cd frontend && npm run lint
 ```
 
-Equivalent direct command:
-
-```bash
-php artisan config:clear
-php artisan test
-```
-
-The frontend also provides an ESLint check:
-
-```bash
-cd frontend
-npm run lint
-```
-
-No coverage percentage is specified or claimed by the repository.
+The PHPUnit suite covers authentication, bookings (fare formula, seat check, ownership, idempotency), Stripe and SumUp payments (SumUp is tested with faked HTTP calls, never the real service), admin access, fare settings, driver and vehicle management, favourites, quick bookings and the scheduled completion command.
 
 ## Deployment
 
-No deployment configuration is committed. The following is guidance based on the current architecture, not a preconfigured deployment recipe.
+Daytrip runs in production on a **Contabo VPS** (Ubuntu 22.04) managed with CyberPanel (OpenLiteSpeed), using PHP 8.3 (LSPHP) and a local PostgreSQL that is not exposed to the internet. One domain serves everything:
 
-Deploy the Laravel API to a PHP 8.3+ host with Composer, PostgreSQL, a web server capable of routing requests to `public/index.php`, and long-running workers for database-backed queues. Configure production environment values, run `composer install --no-dev --optimize-autoloader`, run `php artisan migrate --force`, and build/cache configuration as appropriate for the host. Run `php artisan queue:work` and a scheduler process that invokes `php artisan schedule:run` every minute, or an equivalent scheduler service.
+| URL | Serves |
+| --- | --- |
+| `https://daytrip.ie/...` | The React build (static files in Laravel's `public/`) |
+| `https://daytrip.ie/api/...` | The Laravel API |
 
-Build the React application separately with `cd frontend && npm install && npm run build`, then serve `frontend/dist` from a static host or web server configured for SPA history fallback. Set `VITE_API_URL` to the deployed API `/api` base URL, `VITE_STRIPE_PUBLISHABLE_KEY` to the Stripe publishable key, and `VITE_GOOGLE_MAPS_API_KEY` to a restricted browser key before building. Set the API's `FRONTEND_URL` to the deployed SPA origin and configure Stripe's webhook endpoint as `<API_URL>/api/stripe/webhook`.
+The complete step-by-step guide is in **[`deploy/DEPLOY.md`](deploy/DEPLOY.md)**. In short:
 
-Do not place `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, database passwords, SMTP passwords, or other backend secrets in frontend environment files.
+1. Point the domain's `A` records at the VPS IP, create the site and SSL certificate in CyberPanel, install the PHP Postgres driver (`lsphp83-pgsql`) and create the database and user.
+2. Clone the repository to `/home/<domain>/app`, copy `deploy/.env.production.example` to `.env`, fill it in, then run `composer install --no-dev --optimize-autoloader`, `php artisan key:generate`, `php artisan migrate --force`, `php artisan db:seed --force`, `php artisan storage:link` and `php artisan optimize`.
+3. Point the site's web root (`docRoot`) at `app/public` and put the rewrite rules from the guide in `app/public/.htaccess`. They send `/api/...` to Laravel and every other page to the React app, and they pass the `Authorization` header through (without that line every logged-in request fails with `401`).
+4. Register a cron entry for `php artisan schedule:run` (every minute) and run the queue worker as a service (`deploy/daytrip-queue.service`).
+5. Build the frontend on your own machine (`cd frontend && npm ci && npm run build`, with `frontend/.env.production` filled in) and upload the contents of `frontend/dist` into `app/public`.
+6. Create the admin account by registering on the site and running, in `tinker`, `\App\Models\User::where('email', '...')->first()->forceFill(['is_admin' => true])->save();`.
+7. Point Stripe's webhook at `https://daytrip.ie/api/stripe/webhook`.
 
-## Screenshots / Demo
+To update later: run `deploy/deploy.sh` for the API (pull, install, migrate, cache, restart the queue) and rebuild and re-upload the frontend when it changes. Run `artisan` commands as the site's user, not as root, so that log and cache files stay writable by the web server.
 
-No screenshots or live demo URL are included in the repository.
+### Email in production
+
+Booking confirmations and other emails are queued, so the queue worker must be running. Whichever SMTP server you use, sending domain authentication matters: Gmail rejects mail that has neither valid SPF nor DKIM. If mail is sent from the VPS's own mail server, add these DNS records for your domain: an SPF `TXT` record, the DKIM `TXT` record for the selector the mail server signs with, and a DMARC `TXT` record. Also set a reverse-DNS (PTR) name for the server's IP. Alternatively use an external SMTP service and set the `MAIL_*` variables accordingly.
+
+### Notes
+
+- After changing `.env` on the server run `php artisan optimize` and restart the queue worker, because Laravel caches configuration and the worker reads it only at start.
+- Keep `APP_DEBUG=false`, use live Stripe keys (`sk_live_...`/`pk_live_...`) for real payments, and keep the Postgres port closed to the internet. In the CyberPanel firewall allow only ports 22, 80 and 443, and restrict 8090 and 7080 to your own IP.
+- Contabo blocks outbound port 25, so use an external SMTP provider (submission port 587) for the `MAIL_*` variables.
+- Back up the database nightly with `pg_dump` and copy the dump off the server.
+- The `Dockerfile` is not used by the Contabo deployment; it exists for container-based hosts, where the React app is built and served separately.
+
+## Known Limitations
+
+- The booking screen's live tracking and driver messaging are simulated in the browser, not connected to real drivers or GPS.
+- The trip-time estimate assumes an average of 28 km/h for every trip, which is too slow for long inter-city journeys. The fare uses distance, not this estimate.
+- SumUp: saved cards do not show an expiry date (SumUp does not return one), charges are confirmed synchronously with no webhook, and a card needing extra bank verification is not handled.
+- SumUp's API is not reachable from some regions (SumUp blocks them at its firewall), so test SumUp from a supported region or from the server.
 
 ## Contributing
 
-1. Create a focused branch from the current default branch.
+1. Create a focused branch from the default branch.
 2. Install dependencies and configure a local `.env` without committing secrets.
-3. Make a focused change with tests where behavior changes.
-4. Run `composer run test`, `cd frontend && npm run lint`, and the relevant build commands.
-5. Open a pull request describing the change, validation performed, database migrations, and any environment-variable changes.
+3. Make a focused change with tests where behaviour changes.
+4. Run `composer run test`, `cd frontend && npm run lint` and the relevant builds.
+5. Open a pull request describing the change, the validation performed, any migrations and any environment-variable changes.
 
 ## License
 
-No standalone `LICENSE` file is present. `composer.json` declares the package metadata as MIT, but the repository does not include the corresponding license text; confirm the intended project license before publishing.
+No standalone `LICENSE` file is present. `composer.json` declares the package metadata as MIT, but the repository does not include the license text; confirm the intended license before publishing.
