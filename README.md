@@ -1,6 +1,6 @@
-# Lynk
+# DayTrip
 
-Lynk is a taxi booking platform prototype for passengers, business customers, dispatchers, and administrators. It combines a Laravel API with a separate React single-page application for route quoting, booking, account management, saved journeys, Stripe payments, and fleet administration.
+DayTrip is a taxi booking platform prototype for passengers, business customers, dispatchers, and administrators. It combines a Laravel API with a separate React single-page application for route quoting, booking, account management, saved journeys, Stripe payments, and fleet administration.
 
 The repository contains two independent frontend toolchains: the Laravel root asset pipeline and the user-facing React app in `frontend/`. The React app calls the Laravel API over HTTP; it is not served by Laravel's default web route.
 
