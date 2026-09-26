@@ -10,7 +10,7 @@ export default function PaymentPickerModal({ open, onClose, value, onChange }) {
   const [addCardOpen, setAddCardOpen] = useState(false)
 
   useEffect(() => {
-    if (open) paymentService.getCards().then(setCards)
+    if (open) paymentService.getCards().then((all) => setCards(all.filter((c) => c.provider === 'sumup')))
   }, [open])
 
   return (
@@ -48,7 +48,7 @@ export default function PaymentPickerModal({ open, onClose, value, onChange }) {
             <span className="flex size-10 items-center justify-center rounded-xl bg-surface-muted">
               <Plus className="size-5" />
             </span>
-            <span className="text-sm font-semibold">Add a new card</span>
+            <span className="text-sm font-semibold">Pay card</span>
           </button>
         </div>
       </Modal>
@@ -57,7 +57,7 @@ export default function PaymentPickerModal({ open, onClose, value, onChange }) {
         open={addCardOpen}
         onClose={() => setAddCardOpen(false)}
         onAdded={(updatedCards) => {
-          setCards(updatedCards)
+          setCards(updatedCards.filter((c) => c.provider === 'sumup'))
           const newest = updatedCards[updatedCards.length - 1]
           if (newest) onChange({ type: 'card', cardId: newest.id })
           onClose()
