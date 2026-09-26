@@ -11,6 +11,8 @@ import {
   CreditCard,
   RotateCcw,
   Car,
+  Users,
+  Hourglass,
 } from 'lucide-react'
 import Button from '../../components/ui/Button'
 import Input from '../../components/ui/Input'
@@ -24,7 +26,9 @@ import PaymentPickerModal from '../../components/booking/PaymentPickerModal'
 import StripePaymentModal from '../../components/booking/StripePaymentModal'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
-import { findVehicle } from '../../data/vehicles'
+import { findVehicle, capacityError } from '../../data/vehicles'
+import { useFareSettings } from '../../hooks/useFareSettings'
+import { useDebounce } from '../../hooks/useDebounce'
 import * as bookingService from '../../services/bookingService'
 import * as paymentService from '../../services/paymentService'
 import { formatCurrency } from '../../utils/format'
@@ -50,6 +54,8 @@ export default function NewBooking() {
   const [pickupTime, setPickupTime] = useState('')
 
   const [vehicleId, setVehicleId] = useState(rebook?.vehicle?.id || 'any')
+  const [passengers, setPassengers] = useState(String(rebook?.passengers || 1))
+  const [waitingMinutes, setWaitingMinutes] = useState('0')
   const [quotes, setQuotes] = useState({})
   const [loadingQuotes, setLoadingQuotes] = useState(false)
   const [vehiclePickerOpen, setVehiclePickerOpen] = useState(false)
@@ -72,6 +78,12 @@ export default function NewBooking() {
   const [pendingPaymentBookingId, setPendingPaymentBookingId] = useState(null)
 
   const selectedVehicle = findVehicle(vehicleId)
+  const FARE = useFareSettings()
+  const passengerCount = parseInt(passengers, 10) || 0
+  const waitingCount = Math.min(Math.max(parseInt(waitingMinutes, 10) || 0, 0), FARE.maxWaitingMinutes)
+  const seatError = passengerCount >= 1 ? capacityError(selectedVehicle, passengerCount) : null
+  const quotePassengers = useDebounce(Math.max(passengerCount, 1))
+  const quoteWaiting = useDebounce(waitingCount)
   const hasRoute = pickup && destination
   const quote = hasRoute ? quotes[vehicleId] : undefined
   const isAirportPickup = pickup?.label.toLowerCase().includes('airport')
@@ -94,7 +106,7 @@ export default function NewBooking() {
     // route at once — the backend computes distance and fare itself from
     // the coordinates, so nothing about the price ever originates client-side.
     bookingService
-      .getQuotesForRoute({ pickup, destination })
+      .getQuotesForRoute({ pickup, destination, passengers: quotePassengers, waitingMinutes: quoteWaiting })
       .then((map) => {
         // "Any Taxi" isn't a real backend vehicle type — it's the frontend's
         // default-before-choosing pseudo-option, priced the same as Saloon.
@@ -111,7 +123,7 @@ export default function NewBooking() {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickup, destination, stops])
+  }, [pickup, destination, stops, quotePassengers, quoteWaiting])
 
   function update(setter, field) {
     return (e) => {
@@ -125,6 +137,9 @@ export default function NewBooking() {
     if (!pickup) next.pickup = 'A pickup address is required'
     if (!destination) next.destination = 'A destination address is required'
     if (stops.some((s) => !s)) next.stops = 'Please complete or remove any empty stops'
+    if (passengerCount < 1) next.passengers = 'Enter at least 1 passenger'
+    else if (seatError) next.passengers = seatError
+    if (waitingCount !== (parseInt(waitingMinutes, 10) || 0)) next.waitingMinutes = 'Waiting time is charged for one hour at most'
     if (!isNotEmpty(passengerName)) next.passengerName = 'Passenger name is required'
     if (!isValidPhone(phone)) next.phone = 'Please enter a valid phone number'
     if (confirmationEmail && !isValidEmail(confirmationEmail)) next.confirmationEmail = 'Please enter a valid email address'
@@ -147,6 +162,8 @@ export default function NewBooking() {
         stops: stops.filter(Boolean),
         scheduledFor,
         vehicle: { ...selectedVehicle },
+        passengers: passengerCount,
+        waitingMinutes: waitingCount,
         passengerName,
         phone,
         notes,
@@ -226,6 +243,32 @@ export default function NewBooking() {
               value={phone}
               onChange={(v) => { setPhone(v); setErrors((e) => ({ ...e, phone: undefined })) }}
               error={errors.phone}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Input
+              label="Number of Passengers"
+              icon={<Users className="size-4.5" />}
+              type="number"
+              min="1"
+              step="1"
+              value={passengers}
+              onChange={update(setPassengers, 'passengers')}
+              error={errors.passengers || seatError}
+              hint={`+${formatCurrency(FARE.perPassenger)} per passenger`}
+            />
+            <Input
+              label="Waiting Time (minutes)"
+              icon={<Hourglass className="size-4.5" />}
+              type="number"
+              min="0"
+              max={FARE.maxWaitingMinutes}
+              step="1"
+              value={waitingMinutes}
+              onChange={update(setWaitingMinutes, 'waitingMinutes')}
+              error={errors.waitingMinutes}
+              hint={`${formatCurrency(FARE.waitingPerMinute)} per minute, charged for one hour at most`}
             />
           </div>
 
@@ -351,6 +394,7 @@ export default function NewBooking() {
       <StripePaymentModal
         open={!!pendingPaymentBookingId}
         bookingId={pendingPaymentBookingId}
+        cardId={paymentMethod?.cardId}
         onClose={() => setPendingPaymentBookingId(null)}
         onSuccess={() => {
           const id = pendingPaymentBookingId

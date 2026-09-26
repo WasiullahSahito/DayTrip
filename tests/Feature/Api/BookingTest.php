@@ -5,8 +5,10 @@ namespace Tests\Feature\Api;
 use App\Models\Booking;
 use App\Models\User;
 use App\Models\VehicleType;
+use App\Notifications\BookingConfirmed;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class BookingTest extends TestCase
@@ -44,6 +46,42 @@ class BookingTest extends TestCase
         ], $overrides);
     }
 
+    public function test_fare_is_per_km_plus_per_passenger_plus_capped_waiting(): void
+    {
+        Notification::fake();
+        $user = User::factory()->create();
+
+        $base = $this->actingAs($user, 'sanctum')->postJson('/api/bookings', $this->payload(['passengers' => 1]));
+        $km = (float) $base->json('data.distanceKm');
+        $this->assertEqualsWithDelta(round(7.40 + $km * 2.20 + 1, 2), $base->json('data.fare'), 0.001);
+
+        $three = $this->actingAs($user, 'sanctum')->postJson('/api/bookings', $this->payload(['passengers' => 3]));
+        $this->assertEqualsWithDelta($base->json('data.fare') + 2, $three->json('data.fare'), 0.001);
+        $three->assertJsonPath('data.passengers', 3);
+
+        $waiting = $this->actingAs($user, 'sanctum')->postJson('/api/bookings', $this->payload(['passengers' => 1, 'waitingMinutes' => 60]));
+        $this->assertEqualsWithDelta($base->json('data.fare') + 60, $waiting->json('data.fare'), 0.001);
+
+        // Waiting beyond one hour is rejected, so it can never be billed.
+        $this->actingAs($user, 'sanctum')->postJson('/api/bookings', $this->payload(['waitingMinutes' => 120]))
+            ->assertStatus(422)->assertJsonValidationErrors('waitingMinutes');
+    }
+
+    public function test_too_many_passengers_for_the_vehicle_suggests_a_bigger_one(): void
+    {
+        VehicleType::create([
+            'key' => 'six-seater', 'name' => 'Regular 6 Seater', 'passengers' => 6, 'icon' => 'users',
+            'base_fare' => 0, 'per_km' => 0, 'per_min' => 0, 'min_fare' => 0, 'eta_mins' => 6,
+        ]);
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user, 'sanctum')->postJson('/api/bookings', $this->payload(['passengers' => 5]));
+
+        $response->assertStatus(422)->assertJsonValidationErrors('passengers');
+        $this->assertStringContainsString('Regular 6 Seater', $response->json('errors.passengers.0'));
+        $this->assertDatabaseCount('bookings', 0);
+    }
+
     public function test_booking_creation_requires_authentication(): void
     {
         $this->postJson('/api/bookings', $this->payload())->assertStatus(401);
@@ -63,7 +101,7 @@ class BookingTest extends TestCase
 
         $this->assertDatabaseHas('bookings', ['user_id' => $user->id, 'passenger_name' => 'Aoife Murphy']);
 
-        Notification::assertSentTo($user, \App\Notifications\BookingConfirmed::class);
+        Notification::assertSentTo($user, BookingConfirmed::class);
     }
 
     /**
@@ -158,7 +196,7 @@ class BookingTest extends TestCase
     public function test_duplicate_submission_with_the_same_idempotency_key_does_not_create_two_bookings(): void
     {
         $user = User::factory()->create();
-        $key = (string) \Illuminate\Support\Str::uuid();
+        $key = (string) Str::uuid();
 
         $first = $this->actingAs($user, 'sanctum')
             ->withHeader('Idempotency-Key', $key)

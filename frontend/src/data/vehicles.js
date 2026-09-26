@@ -92,8 +92,35 @@ export function haversineKm(a, b) {
   return R * 2 * Math.asin(Math.sqrt(h))
 }
 
-export function estimateFare(vehicle, distanceKm, durationMin) {
-  const raw = vehicle.baseFare + distanceKm * vehicle.perKm + durationMin * vehicle.perMin
-  const fare = Math.max(raw, vehicle.minFare)
+// Fare = baseFare + perKm x km + perPassenger x passengers + waiting charge,
+// waiting billed per minute and capped at one hour. These are only the fallback defaults
+// (matching config/fare.php) — live rates come from useFareSettings().
+export const FARE = {
+  baseFare: 7.4,
+  perKm: 2.2,
+  perPassenger: 1,
+  waitingPerMinute: 1,
+  maxWaitingMinutes: 60,
+}
+
+export function estimateFare(distanceKm, passengers = 1, waitingMinutes = 0, rates = FARE) {
+  const waiting = Math.min(Math.max(waitingMinutes, 0), rates.maxWaitingMinutes)
+  const fare =
+    rates.baseFare +
+    distanceKm * rates.perKm +
+    Math.max(passengers, 1) * rates.perPassenger +
+    rates.waitingPerMinute * waiting
   return Math.round(fare * 100) / 100
+}
+
+// Returns a message if the party doesn't fit the vehicle (naming the smallest
+// vehicle that would), or null if it fits.
+export function capacityError(vehicle, passengers) {
+  if (!vehicle || passengers <= vehicle.passengers) return null
+  const bigger = VEHICLE_TYPES.filter((v) => v.passengers >= passengers).sort(
+    (a, b) => a.passengers - b.passengers
+  )[0]
+  return bigger
+    ? `${vehicle.name} seats ${vehicle.passengers}, but you entered ${passengers} passengers. Please select a ${bigger.name} (${bigger.passengers} seater) vehicle to book.`
+    : `${vehicle.name} seats ${vehicle.passengers}, but you entered ${passengers} passengers. We have no vehicle that seats that many.`
 }

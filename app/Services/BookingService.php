@@ -51,9 +51,9 @@ class BookingService
         return ['distanceKm' => $distanceKm, 'durationMin' => max(1, $durationMin)];
     }
 
-    public function quote(VehicleType $vehicleType, float $distanceKm, int $durationMin): float
+    public function quote(float $distanceKm, int $passengers = 1, int $waitingMinutes = 0): float
     {
-        return $vehicleType->calculateFare($distanceKm, $durationMin);
+        return VehicleType::calculateFare($distanceKm, $passengers, $waitingMinutes);
     }
 
     /**
@@ -65,7 +65,9 @@ class BookingService
     {
         return DB::transaction(function () use ($user, $vehicleType, $data) {
             $route = $this->calculateRoute($data['pickup'], $data['destination'], $data['stops'] ?? []);
-            $fare = $this->quote($vehicleType, $route['distanceKm'], $route['durationMin']);
+            $passengers = (int) ($data['passengers'] ?? 1);
+            $waitingMinutes = min((int) ($data['waitingMinutes'] ?? 0), (int) config('fare.max_waiting_minutes'));
+            $fare = $this->quote($route['distanceKm'], $passengers, $waitingMinutes);
 
             $scheduledFor = isset($data['scheduledFor'])
                 ? Carbon::createFromTimestampMs($data['scheduledFor'])
@@ -81,6 +83,8 @@ class BookingService
                 'stops' => $data['stops'] ?? [],
                 'distance_km' => $route['distanceKm'],
                 'duration_min' => $route['durationMin'],
+                'passengers' => $passengers,
+                'waiting_minutes' => $waitingMinutes,
                 'currency' => 'EUR',
                 'passenger_name' => $data['passengerName'],
                 'phone' => $data['phone'],

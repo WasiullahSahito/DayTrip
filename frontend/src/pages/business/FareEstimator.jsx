@@ -6,7 +6,9 @@ import CTAButton from '../../components/common/CTAButton'
 import AddressField from '../../components/booking/AddressField'
 import RouteMap from '../../components/booking/RouteMap'
 import VehicleCard from '../../components/booking/VehicleCard'
-import { VEHICLE_TYPES, haversineKm, estimateFare } from '../../data/vehicles'
+import Input from '../../components/ui/Input'
+import { VEHICLE_TYPES, haversineKm, estimateFare, capacityError } from '../../data/vehicles'
+import { useFareSettings } from '../../hooks/useFareSettings'
 
 export default function FareEstimator() {
   usePageMeta('Fare Estimator | DayTrip', "Calculate your journey's cost estimate before you book.")
@@ -14,16 +16,22 @@ export default function FareEstimator() {
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
   const [vehicleId, setVehicleId] = useState(VEHICLE_TYPES[0].id)
+  const [passengers, setPassengers] = useState('1')
+  const [waitingMinutes, setWaitingMinutes] = useState('0')
 
   const hasRoute = pickup && destination
   let distanceKm = 0
-  let durationMin = 0
   if (hasRoute) {
     distanceKm = haversineKm(pickup, destination) * 1.35
-    durationMin = (distanceKm / 28) * 60
   }
 
   const selectedVehicle = VEHICLE_TYPES.find((v) => v.id === vehicleId)
+  const FARE = useFareSettings()
+  const passengerCount = parseInt(passengers, 10) || 0
+  const waitingCount = Math.min(Math.max(parseInt(waitingMinutes, 10) || 0, 0), FARE.maxWaitingMinutes)
+  const seatError = passengerCount >= 1 ? capacityError(selectedVehicle, passengerCount) : null
+  const canBook = hasRoute && passengerCount >= 1 && !seatError
+  const fare = estimateFare(distanceKm, Math.max(passengerCount, 1), waitingCount, FARE)
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
@@ -46,12 +54,35 @@ export default function FareEstimator() {
             <AddressField label="Destination" placeholder="Where to?" value={destination} onChange={setDestination} tone="destination" />
           </Card>
 
+          <Card className="grid gap-3 !p-5 sm:grid-cols-2">
+            <Input
+              label="Number of passengers"
+              type="number"
+              min="1"
+              step="1"
+              value={passengers}
+              onChange={(e) => setPassengers(e.target.value)}
+              error={seatError || (passengerCount < 1 ? 'Enter at least 1 passenger' : undefined)}
+              hint={`+${FARE.perPassenger.toFixed(2)} € per passenger`}
+            />
+            <Input
+              label="Waiting time (minutes)"
+              type="number"
+              min="0"
+              max={FARE.maxWaitingMinutes}
+              step="1"
+              value={waitingMinutes}
+              onChange={(e) => setWaitingMinutes(e.target.value)}
+              hint={`${FARE.waitingPerMinute.toFixed(2)} € per minute, one hour at most`}
+            />
+          </Card>
+
           <div className="space-y-3">
             {VEHICLE_TYPES.map((v) => (
               <VehicleCard
                 key={v.id}
                 vehicle={v}
-                fare={hasRoute ? estimateFare(v, distanceKm, durationMin) : 0}
+                fare={hasRoute ? fare : 0}
                 selected={vehicleId === v.id}
                 onSelect={() => setVehicleId(v.id)}
               />
@@ -60,10 +91,10 @@ export default function FareEstimator() {
 
           <CTAButton
             to="/register"
-            state={{ rebook: { pickup, destination, stops: [], vehicle: selectedVehicle } }}
+            state={{ rebook: { pickup, destination, stops: [], vehicle: selectedVehicle, passengers: passengerCount } }}
             fullWidth
             size="lg"
-            disabled={!hasRoute}
+            disabled={!canBook}
           >
             Book this ride <ArrowRight className="size-4.5" />
           </CTAButton>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\VehicleType;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 
 class BookingRequest extends FormRequest
@@ -43,6 +45,8 @@ class BookingRequest extends FormRequest
             'stops.*.lng' => ['required', 'numeric', 'between:-180,180'],
 
             'vehicleTypeId' => ['required', 'string', 'exists:vehicle_types,key'],
+            'passengers' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'waitingMinutes' => ['nullable', 'integer', 'min:0', 'max:60'],
 
             'scheduledFor' => ['nullable', 'integer'], // epoch milliseconds, must be in the future
             'passengerName' => ['required', 'string', 'max:150'],
@@ -57,5 +61,17 @@ class BookingRequest extends FormRequest
             'paymentMethod' => ['required', 'array'],
             'paymentMethod.type' => ['required', 'string', 'in:cash,card'],
         ];
+    }
+
+    public function after(): array
+    {
+        return [function (Validator $validator) {
+            $vehicleType = VehicleType::where('key', $this->input('vehicleTypeId'))->first();
+            $error = $vehicleType?->capacityError((int) ($this->input('passengers') ?? 1));
+
+            if ($error) {
+                $validator->errors()->add('passengers', $error);
+            }
+        }];
     }
 }

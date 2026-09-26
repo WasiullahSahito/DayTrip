@@ -1,0 +1,8 @@
+# Single-page app fallback: any URL that isn't a real file (e.g. /app/home on
+# reload) is served by index.html so React Router can handle it.
+# Vite copies this file into dist/. If OpenLiteSpeed doesn't pick it up, paste
+# these rules into the site's Rewrite Rules tab in CyberPanel instead.
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ /index.html [L]

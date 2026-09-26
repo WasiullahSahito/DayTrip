@@ -32,6 +32,14 @@ export async function updateVehicleType(id, payload) {
   return api.patch(`/admin/vehicle-types/${id}`, payload)
 }
 
+export async function getFareSettings() {
+  return api.get('/admin/fare-settings')
+}
+
+export async function updateFareSettings(payload) {
+  return api.patch('/admin/fare-settings', payload)
+}
+
 export async function getBookings(query = '') {
   return api.get(`/admin/bookings${query}`)
 }

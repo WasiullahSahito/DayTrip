@@ -8,6 +8,7 @@ use App\Models\StripeWebhookEvent;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Stripe\Event;
 use Stripe\Exception\ApiErrorException;
 use Stripe\PaymentIntent;
 use Stripe\StripeClient;
@@ -85,7 +86,7 @@ class PaymentService
         });
     }
 
-    public function constructWebhookEvent(string $payload, string $signature): \Stripe\Event
+    public function constructWebhookEvent(string $payload, string $signature): Event
     {
         return Webhook::constructEvent($payload, $signature, config('services.stripe.webhook_secret'));
     }
@@ -95,7 +96,7 @@ class PaymentService
      * processing, inside the same transaction as the state change it
      * causes, so a redelivered webhook is a guaranteed no-op.
      */
-    public function handleWebhookEvent(\Stripe\Event $event): void
+    public function handleWebhookEvent(Event $event): void
     {
         if (StripeWebhookEvent::where('stripe_event_id', $event->id)->exists()) {
             Log::info('Stripe webhook event already processed, skipping', ['event_id' => $event->id]);
@@ -193,6 +194,7 @@ class PaymentService
 
         return array_map(fn ($pm) => [
             'id' => $pm->id,
+            'provider' => 'stripe',
             'brand' => ucfirst($pm->card->brand),
             'last4' => $pm->card->last4,
             'expiry' => sprintf('%02d/%s', $pm->card->exp_month, substr((string) $pm->card->exp_year, -2)),
@@ -210,6 +212,10 @@ class PaymentService
         $existing = $this->stripe->paymentMethods->all(['customer' => $customerId, 'type' => 'card']);
         if (count($existing->data) === 1) {
             $this->setDefaultPaymentMethod($user, $paymentMethodId);
+        }
+
+        if (! $user->default_card_provider) {
+            $user->forceFill(['default_card_provider' => 'stripe'])->saveQuietly();
         }
     }
 

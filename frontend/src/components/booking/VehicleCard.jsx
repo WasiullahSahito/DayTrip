@@ -4,7 +4,7 @@ import { formatCurrency } from '../../utils/format'
 
 const ICONS = { car: Car, users: Users, accessibility: Accessibility }
 
-export default function VehicleCard({ vehicle, fare, selected, onSelect, showEta = true, fromPrice = false }) {
+export default function VehicleCard({ vehicle, fare, selected, onSelect, showEta = true, fromPrice = false, priceSuffix = '' }) {
   const Icon = ICONS[vehicle.icon] || Car
 
   return (
@@ -42,7 +42,7 @@ export default function VehicleCard({ vehicle, fare, selected, onSelect, showEta
 
       <span className="shrink-0 text-right">
         {fromPrice && <span className="block text-[11px] font-medium text-ink-soft">from</span>}
-        <span className="block text-lg font-extrabold text-ink">{formatCurrency(fare)}</span>
+        <span className="block text-lg font-extrabold text-ink">{formatCurrency(fare)}{priceSuffix && <span className="text-xs font-semibold text-ink-soft">{priceSuffix}</span>}</span>
       </span>
     </button>
   )

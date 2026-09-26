@@ -11,6 +11,7 @@ import RouteMap from '../../components/booking/RouteMap'
 import StripePaymentModal from '../../components/booking/StripePaymentModal'
 import { STATUS_META } from '../../components/booking/statusMeta'
 import * as bookingService from '../../services/bookingService'
+import * as paymentService from '../../services/paymentService'
 import { useToast } from '../../context/ToastContext'
 import { formatCurrency, formatTime, relativeMinutes, initials } from '../../utils/format'
 
@@ -38,6 +39,15 @@ export default function ActiveBooking() {
   const [sending, setSending] = useState(false)
   const [showConfirmedBanner, setShowConfirmedBanner] = useState(false)
   const [payOpen, setPayOpen] = useState(false)
+  // The customer's default saved card decides whether "Complete payment" charges a SumUp card or opens Stripe.
+  const [defaultCardId, setDefaultCardId] = useState(null)
+
+  useEffect(() => {
+    paymentService
+      .getCards()
+      .then((cards) => setDefaultCardId(cards.find((c) => c.isDefault)?.id ?? null))
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -216,6 +226,7 @@ export default function ActiveBooking() {
       <StripePaymentModal
         open={payOpen}
         bookingId={booking.id}
+        cardId={defaultCardId}
         onClose={() => setPayOpen(false)}
         onSuccess={() => {
           setPayOpen(false)

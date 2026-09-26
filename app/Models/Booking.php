@@ -24,6 +24,7 @@ class Booking extends Model
      */
     protected $fillable = [
         'vehicle_type_id', 'pickup', 'destination', 'stops', 'distance_km', 'duration_min',
+        'passengers', 'waiting_minutes',
         'currency', 'passenger_name', 'phone', 'notes', 'flight_number', 'confirmation_email',
         'return_journey', 'payment_method', 'scheduled_for', 'is_scheduled', 'idempotency_key',
     ];

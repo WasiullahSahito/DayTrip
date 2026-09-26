@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Car, ClipboardList, LogOut, ArrowLeft, Truck } from 'lucide-react'
+import { LayoutDashboard, Car, ClipboardList, LogOut, ArrowLeft, Truck, Euro } from 'lucide-react'
 import clsx from 'clsx'
 import Logo from './Logo'
 import { useAuth } from '../../context/AuthContext'
@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { to: '/admin/bookings', label: 'Bookings', icon: ClipboardList },
   { to: '/admin/drivers', label: 'Drivers', icon: Car },
   { to: '/admin/vehicle-types', label: 'Vehicle types', icon: Truck },
+  { to: '/admin/fare-settings', label: 'Fares', icon: Euro },
 ]
 
 export default function AdminHeader() {

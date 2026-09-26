@@ -6,6 +6,7 @@ import Button from '../ui/Button'
 import Spinner from '../ui/Spinner'
 import { stripePromise } from '../../services/stripe'
 import { api } from '../../services/api'
+import * as paymentService from '../../services/paymentService'
 
 /**
  * Card details are entered directly into Stripe's own Payment Element,
@@ -13,7 +14,15 @@ import { api } from '../../services/api'
  * this component's state, this app's JavaScript, or the Laravel backend.
  * Only the resulting PaymentIntent confirmation result is handled here.
  */
-export default function StripePaymentModal({ open, bookingId, onClose, onSuccess }) {
+export default function StripePaymentModal({ open, bookingId, cardId, onClose, onSuccess }) {
+  // A saved SumUp card is charged server-side; everything else goes through Stripe's Payment Element.
+  if (paymentService.isSumUpCard(cardId)) {
+    return <SumUpPaymentModal open={open} bookingId={bookingId} cardId={cardId} onClose={onClose} onSuccess={onSuccess} />
+  }
+  return <StripeModal open={open} bookingId={bookingId} onClose={onClose} onSuccess={onSuccess} />
+}
+
+function StripeModal({ open, bookingId, onClose, onSuccess }) {
   const [clientSecret, setClientSecret] = useState(null)
   const [error, setError] = useState('')
 
@@ -122,5 +131,41 @@ function CheckoutForm({ onClose, onSuccess }) {
         Cancel
       </button>
     </form>
+  )
+}
+
+function SumUpPaymentModal({ open, bookingId, cardId, onClose, onSuccess }) {
+  const [paying, setPaying] = useState(false)
+  const [error, setError] = useState('')
+
+  async function pay() {
+    setPaying(true)
+    setError('')
+    try {
+      await paymentService.chargeSumUpCard(bookingId, cardId)
+      onSuccess()
+    } catch (err) {
+      setError(err.message || 'Your payment could not be completed. Please try another card.')
+    } finally {
+      setPaying(false)
+    }
+  }
+
+  return (
+    <Modal open={open} onClose={onClose} title="Confirm payment" size="sm">
+      <div className="space-y-4 pb-2">
+        <p className="text-sm text-ink-soft">Your saved SumUp card will be charged for this booking.</p>
+        {error && <p className="rounded-lg bg-danger-bg px-3 py-2.5 text-sm font-medium text-danger">{error}</p>}
+        <Button fullWidth size="lg" loading={paying} onClick={pay}>
+          <CreditCard className="size-4.5" /> Pay now
+        </Button>
+        <p className="flex items-center justify-center gap-1.5 text-center text-xs text-ink-soft">
+          <ShieldCheck className="size-3.5" /> Payments are processed securely by SumUp.
+        </p>
+        <button type="button" onClick={onClose} className="w-full text-center text-sm font-semibold text-ink-soft hover:text-ink cursor-pointer">
+          Cancel
+        </button>
+      </div>
+    </Modal>
   )
 }

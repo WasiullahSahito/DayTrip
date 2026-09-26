@@ -23,10 +23,12 @@ import AddressField from '../components/booking/AddressField'
 import VehicleCard from '../components/booking/VehicleCard'
 import { PROFILE_TYPES } from '../data/profileTypes'
 import { VEHICLE_TYPES } from '../data/vehicles'
+import { useFareSettings } from '../hooks/useFareSettings'
 
 export default function Landing() {
   usePageMeta('Book a Taxi Online | Easy & Convenient Taxi Booking', 'Book your taxi online with an easy-to-use web booker. Manage bookings, track your taxi, and handle all your transport needs from any device.')
   const navigate = useNavigate()
+  const FARE = useFareSettings()
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
 
@@ -155,7 +157,7 @@ export default function Landing() {
               <VehicleCard
                 key={v.id}
                 vehicle={v}
-                fare={v.minFare}
+                fare={FARE.baseFare}
                 fromPrice
                 showEta={false}
                 selected={false}

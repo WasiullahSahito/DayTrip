@@ -81,13 +81,16 @@ export default function PaymentMethods() {
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 font-bold text-ink">
                 {c.brand} &middot;&middot;&middot;&middot; {c.last4}
+                {c.provider === 'sumup' && (
+                  <span className="rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-bold text-ink-soft">SumUp</span>
+                )}
                 {c.isDefault && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-success-bg px-2 py-0.5 text-[10px] font-bold text-success">
                     <CheckCircle2 className="size-3" /> Default
                   </span>
                 )}
               </p>
-              <p className="text-sm text-ink-soft">Expires {c.expiry}</p>
+              <p className="text-sm text-ink-soft">{c.expiry ? `Expires ${c.expiry}` : c.provider === 'sumup' ? 'Saved with SumUp' : ''}</p>
             </div>
             {!c.isDefault && (
               <button

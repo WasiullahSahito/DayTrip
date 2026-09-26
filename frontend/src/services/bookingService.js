@@ -14,10 +14,12 @@ const TIMELINE = {
   in_progress: 30,
 }
 
-export async function getQuotesForRoute({ pickup, destination, vehicleTypeId }) {
+export async function getQuotesForRoute({ pickup, destination, vehicleTypeId, passengers, waitingMinutes }) {
   return api.post('/fare-quote', {
     pickup: { lat: pickup.lat, lng: pickup.lng },
     destination: { lat: destination.lat, lng: destination.lng },
+    passengers,
+    waitingMinutes,
     ...(vehicleTypeId ? { vehicleTypeId } : {}),
   })
 }
@@ -33,6 +35,8 @@ export async function createBooking(details) {
       // — there's no such vehicle type server-side, so it's resolved to the
       // Saloon rate (the same one it's quoted at) at the point of booking.
       vehicleTypeId: details.vehicle.id === 'any' ? 'saloon' : details.vehicle.id,
+      passengers: details.passengers,
+      waitingMinutes: details.waitingMinutes || 0,
       scheduledFor: details.scheduledFor || undefined,
       passengerName: details.passengerName,
       phone: details.phone,

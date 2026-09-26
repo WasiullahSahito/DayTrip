@@ -52,6 +52,7 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminBookings from './pages/admin/Bookings'
 import AdminDrivers from './pages/admin/Drivers'
 import AdminVehicleTypes from './pages/admin/VehicleTypes'
+import AdminFareSettings from './pages/admin/FareSettings'
 
 export default function App() {
   return (
@@ -109,6 +110,7 @@ export default function App() {
               <Route path="bookings" element={<AdminBookings />} />
               <Route path="drivers" element={<AdminDrivers />} />
               <Route path="vehicle-types" element={<AdminVehicleTypes />} />
+              <Route path="fare-settings" element={<AdminFareSettings />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

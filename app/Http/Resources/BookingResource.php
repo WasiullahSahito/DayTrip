@@ -2,11 +2,12 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Models\Booking
+ * @mixin Booking
  */
 class BookingResource extends JsonResource
 {
@@ -32,6 +33,8 @@ class BookingResource extends JsonResource
             'currency' => $this->currency,
             'distanceKm' => (float) $this->distance_km,
             'durationMin' => $this->duration_min,
+            'passengers' => $this->passengers,
+            'waitingMinutes' => $this->waiting_minutes,
             'passengerName' => $this->passenger_name,
             'phone' => $this->phone,
             'notes' => $this->notes ?? '',

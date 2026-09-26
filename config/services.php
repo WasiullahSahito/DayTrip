@@ -41,6 +41,13 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    'sumup' => [
+        'api_key' => env('SUMUP_API_KEY'),
+        'merchant_code' => env('SUMUP_MERCHANT_CODE'),
+        'base_url' => env('SUMUP_BASE_URL', 'https://api.sumup.com'),
+        'setup_amount' => (float) env('SUMUP_SETUP_AMOUNT', 0),
+    ],
+
     'frontend' => [
         'url' => env('FRONTEND_URL', 'http://localhost:5173'),
     ],

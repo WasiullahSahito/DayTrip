@@ -37,7 +37,7 @@ export default function PaymentPickerModal({ open, onClose, value, onChange }) {
               }}
               icon={<CreditCard className="size-5" />}
               label={`${c.brand} •••• ${c.last4}`}
-              sub={`Expires ${c.expiry}`}
+              sub={c.expiry ? `Expires ${c.expiry}` : c.provider === 'sumup' ? 'SumUp card' : ''}
             />
           ))}
           <button

@@ -3,12 +3,14 @@
 use App\Http\Controllers\Api\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\Api\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Api\Admin\DriverController as AdminDriverController;
+use App\Http\Controllers\Api\Admin\FareSettingsController as AdminFareSettingsController;
 use App\Http\Controllers\Api\Admin\VehicleTypeController as AdminVehicleTypeController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\DemoRequestController;
 use App\Http\Controllers\Api\FareQuoteController;
+use App\Http\Controllers\Api\FareSettingsController;
 use App\Http\Controllers\Api\FavouriteAddressController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\PaymentMethodController;
@@ -25,6 +27,7 @@ Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])-
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset');
 
 Route::get('/vehicle-types', [VehicleTypeController::class, 'index']);
+Route::get('/fare-settings', [FareSettingsController::class, 'show']);
 Route::post('/fare-quote', [FareQuoteController::class, 'store']);
 
 Route::post('/contact', [ContactController::class, 'store'])->middleware('throttle:contact');
@@ -54,9 +57,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/quick-bookings/{quickBooking}', [QuickBookingController::class, 'destroy']);
 
     Route::post('/payments/intents', [PaymentController::class, 'createIntent'])->middleware('throttle:payment-intent');
+    Route::post('/payments/sumup/charge', [PaymentController::class, 'chargeSumUp'])->middleware('throttle:payment-intent');
 
     Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
     Route::post('/payment-methods/setup-intent', [PaymentMethodController::class, 'setupIntent']);
+    Route::post('/payment-methods/sumup/checkout', [PaymentMethodController::class, 'sumupCheckout'])->middleware('throttle:payment-intent');
+    Route::post('/payment-methods/sumup/confirm', [PaymentMethodController::class, 'sumupConfirm'])->middleware('throttle:payment-intent');
     Route::post('/payment-methods', [PaymentMethodController::class, 'store']);
     Route::delete('/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'destroy']);
     Route::post('/payment-methods/{paymentMethod}/default', [PaymentMethodController::class, 'setDefault']);
@@ -66,6 +72,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/stats', [AdminDashboardController::class, 'stats']);
+
+    Route::get('/fare-settings', [AdminFareSettingsController::class, 'show']);
+    Route::patch('/fare-settings', [AdminFareSettingsController::class, 'update']);
 
     Route::get('/drivers', [AdminDriverController::class, 'index']);
     Route::post('/drivers', [AdminDriverController::class, 'store']);

@@ -27,12 +27,20 @@ class FareQuoteController extends Controller
             ->when(isset($data['vehicleTypeId']), fn ($q) => $q->where('key', $data['vehicleTypeId']))
             ->get();
 
+        $passengers = (int) ($data['passengers'] ?? 1);
+        $fare = $this->bookings->quote($route['distanceKm'], $passengers, (int) ($data['waitingMinutes'] ?? 0));
+
+        // The fare no longer depends on the vehicle, so every type gets the
+        // same number; `available`/`message` tell the UI which ones can
+        // actually seat the party.
         $quotes = $types->mapWithKeys(fn (VehicleType $type) => [
             $type->key => [
-                'fare' => $this->bookings->quote($type, $route['distanceKm'], $route['durationMin']),
+                'fare' => $fare,
                 'currency' => 'EUR',
                 'distanceKm' => $route['distanceKm'],
                 'durationMin' => $route['durationMin'],
+                'available' => $type->fitsPassengers($passengers),
+                'message' => $type->capacityError($passengers),
             ],
         ]);
 

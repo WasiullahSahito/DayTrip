@@ -1,0 +1,18 @@
+# Queue worker for booking/contact/demo emails.
+# Install:  sudo cp deploy/daytrip-queue.service /etc/systemd/system/
+#           (edit User/Group below to the CyberPanel site user: ls -ld /home/api.daytrip.ie)
+#           sudo systemctl daemon-reload && sudo systemctl enable --now daytrip-queue
+[Unit]
+Description=Daytrip Laravel queue worker
+After=network.target postgresql.service
+
+[Service]
+User=CHANGE_ME
+Group=CHANGE_ME
+WorkingDirectory=/home/api.daytrip.ie/app
+ExecStart=/usr/local/lsws/lsphp83/bin/php artisan queue:work --sleep=3 --tries=3 --max-time=3600
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

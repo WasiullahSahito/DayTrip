@@ -12,7 +12,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['first_name', 'last_name', 'email', 'password', 'phone', 'account_type', 'business_name'])]
-#[Hidden(['password', 'remember_token', 'stripe_customer_id'])]
+#[Hidden(['password', 'remember_token', 'stripe_customer_id', 'sumup_customer_id', 'sumup_default_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -63,5 +63,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class);
     }
-
 }
