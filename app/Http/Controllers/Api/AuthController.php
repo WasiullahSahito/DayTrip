@@ -26,15 +26,24 @@ class AuthController extends Controller
     {
         $data = $request->validated();
 
-        $user = User::create([
+        $attributes = [
             'first_name' => $data['firstName'],
             'last_name' => $data['lastName'],
             'email' => $data['email'],
-            'password' => $data['password'],
             'phone' => $data['phone'],
             'account_type' => $data['accountType'],
             'business_name' => $data['businessName'] ?? null,
-        ]);
+        ];
+
+        // Only set the key when a password was actually given — the column
+        // is nullable, and passing null through the "hashed" cast would try
+        // to hash null. A user who skips this can set a password later via
+        // the password-reset email flow (see AuthController::forgotPassword).
+        if (! empty($data['password'])) {
+            $attributes['password'] = $data['password'];
+        }
+
+        $user = User::create($attributes);
 
         event(new Registered($user));
 

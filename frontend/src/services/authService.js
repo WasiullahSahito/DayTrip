@@ -7,16 +7,22 @@ export async function login({ email, password }) {
 }
 
 export async function register(payload) {
-  const data = await api.post('/auth/register', {
+  const body = {
     firstName: payload.firstName,
     lastName: payload.lastName,
     email: payload.email,
-    password: payload.password,
-    password_confirmation: payload.confirmPassword,
     phone: payload.phone,
     accountType: payload.accountType,
     businessName: payload.businessName || null,
-  })
+  }
+  // Password is optional at signup — only send it (and its confirmation)
+  // when the user actually set one, so the backend's "nullable" validation
+  // leaves the account passwordless rather than rejecting an empty string.
+  if (payload.password) {
+    body.password = payload.password
+    body.password_confirmation = payload.confirmPassword
+  }
+  const data = await api.post('/auth/register', body)
   setToken(data.token)
   return data.user
 }

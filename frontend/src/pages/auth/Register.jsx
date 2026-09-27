@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Check, User, Building2, Briefcase, Mail, Lock, ChevronLeft } from 'lucide-react'
+import { Building2, Mail, Lock } from 'lucide-react'
 import clsx from 'clsx'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import Input from '../../components/ui/Input'
@@ -9,19 +9,19 @@ import Button from '../../components/ui/Button'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { isValidEmail, isValidPhone, isNotEmpty, minLength, passwordStrength } from '../../utils/validators'
-import { PROFILE_TYPES } from '../../data/profileTypes'
 
-const TYPE_ICON = { personal: User, business: Building2, 'business-plus': Briefcase }
-
+// Account type (personal/business/business-plus) is a self-service plan
+// choice, not something every signup asks about — it only ever arrives here
+// as router state from a business page's "Choose Business" CTA
+// (see PaymentPlanCard). Everyone else signs up as personal, no picker shown.
 export default function Register() {
-  usePageMeta('Register | DayTrip', 'Create your free DayTrip account — Personal, Business, or Business+.')
+  usePageMeta('Register | DayTrip', 'Create your free DayTrip account in a few seconds.')
   const { register } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
 
-  const [step, setStep] = useState(location.state?.accountType ? 2 : 1)
-  const [accountType, setAccountType] = useState(location.state?.accountType || 'personal')
+  const accountType = location.state?.accountType || 'personal'
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -43,14 +43,18 @@ export default function Register() {
     setErrors((e) => ({ ...e, [field]: undefined }))
   }
 
-  function validateStep2() {
+  function validate() {
     const next = {}
     if (!isNotEmpty(form.firstName)) next.firstName = 'First name is required'
     if (!isNotEmpty(form.lastName)) next.lastName = 'Last name is required'
     if (!isValidEmail(form.email)) next.email = 'Please enter a valid email address'
     if (!isValidPhone(form.phone)) next.phone = 'Please enter a valid phone number'
-    if (!minLength(form.password, 8)) next.password = 'Use at least 8 characters'
-    if (form.confirmPassword !== form.password) next.confirmPassword = 'Passwords do not match'
+    // Password is optional here — a quick, frictionless signup. Anyone who
+    // skips it can set one later from the login page's "Forgot password".
+    if (form.password) {
+      if (!minLength(form.password, 8)) next.password = 'Use at least 8 characters'
+      if (form.confirmPassword !== form.password) next.confirmPassword = 'Passwords do not match'
+    }
     if (isBusiness && !isNotEmpty(form.businessName)) next.businessName = 'Business name is required'
     setErrors(next)
     return Object.keys(next).length === 0
@@ -59,7 +63,7 @@ export default function Register() {
   async function onSubmit(e) {
     e.preventDefault()
     setFormError('')
-    if (!validateStep2()) return
+    if (!validate()) return
     setLoading(true)
     try {
       await register({ ...form, accountType })
@@ -72,71 +76,11 @@ export default function Register() {
     }
   }
 
-  if (step === 1) {
-    return (
-      <div className="animate-fade-in">
-        <h1 className="text-2xl font-extrabold text-ink">Create your account</h1>
-        <p className="mt-1.5 text-sm text-ink-soft">Choose the account type that fits you best.</p>
-
-        <div className="mt-6 space-y-3">
-          {PROFILE_TYPES.map((plan) => {
-            const Icon = TYPE_ICON[plan.id]
-            const selected = accountType === plan.id
-            return (
-              <button
-                key={plan.id}
-                type="button"
-                onClick={() => setAccountType(plan.id)}
-                className={clsx(
-                  'flex w-full items-start gap-3.5 rounded-2xl border-2 p-4 text-left transition-colors cursor-pointer',
-                  selected ? 'border-primary bg-primary-lighter/50' : 'border-border hover:border-ink/20'
-                )}
-              >
-                <span
-                  className={clsx(
-                    'flex size-10 shrink-0 items-center justify-center rounded-xl',
-                    selected ? 'bg-primary text-ink' : 'bg-surface-muted text-ink-soft'
-                  )}
-                >
-                  <Icon className="size-5" />
-                </span>
-                <span className="flex-1">
-                  <span className="flex items-center justify-between">
-                    <span className="font-bold text-ink">{plan.label}</span>
-                    {selected && <Check className="size-5 text-ink" />}
-                  </span>
-                  <span className="mt-0.5 block text-xs font-semibold text-ink-soft">{plan.subLabel}</span>
-                </span>
-              </button>
-            )
-          })}
-        </div>
-
-        <Button fullWidth size="lg" className="mt-6" onClick={() => setStep(2)}>
-          Continue
-        </Button>
-
-        <p className="mt-6 text-center text-sm text-ink-soft">
-          Already have an account?{' '}
-          <Link to="/login" className="font-semibold text-ink hover:underline">
-            Log in
-          </Link>
-        </p>
-      </div>
-    )
-  }
-
   return (
     <div className="animate-fade-in">
-      <button
-        onClick={() => setStep(1)}
-        className="mb-4 inline-flex items-center gap-1 text-sm font-semibold text-ink-soft hover:text-ink cursor-pointer"
-      >
-        <ChevronLeft className="size-4" /> Change account type
-      </button>
-      <h1 className="text-2xl font-extrabold text-ink">Your details</h1>
+      <h1 className="text-2xl font-extrabold text-ink">Create your account</h1>
       <p className="mt-1.5 text-sm text-ink-soft">
-        Setting up a <strong className="text-ink">{PROFILE_TYPES.find((p) => p.id === accountType)?.label}</strong> account.
+        {isBusiness ? 'Setting up a Business account. Just a few details.' : "You're a few details away from your first ride."}
       </p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
@@ -170,13 +114,14 @@ export default function Register() {
         />
         <div>
           <Input
-            label="Password"
+            label="Password (optional)"
             type="password"
             icon={<Lock className="size-4.5" />}
             value={form.password}
             onChange={(e) => update('password', e.target.value)}
             error={errors.password}
             autoComplete="new-password"
+            hint={!form.password ? "Leave blank and set one later from \"Forgot password\" on the login page." : undefined}
           />
           {form.password && (
             <div className="mt-2 flex items-center gap-2">
@@ -201,15 +146,17 @@ export default function Register() {
             </div>
           )}
         </div>
-        <Input
-          label="Confirm password"
-          type="password"
-          icon={<Lock className="size-4.5" />}
-          value={form.confirmPassword}
-          onChange={(e) => update('confirmPassword', e.target.value)}
-          error={errors.confirmPassword}
-          autoComplete="new-password"
-        />
+        {form.password && (
+          <Input
+            label="Confirm password"
+            type="password"
+            icon={<Lock className="size-4.5" />}
+            value={form.confirmPassword}
+            onChange={(e) => update('confirmPassword', e.target.value)}
+            error={errors.confirmPassword}
+            autoComplete="new-password"
+          />
+        )}
 
         {formError && (
           <p className="rounded-lg bg-danger-bg px-3 py-2.5 text-sm font-medium text-danger animate-slide-down">
@@ -227,6 +174,13 @@ export default function Register() {
           Create account
         </Button>
       </form>
+
+      <p className="mt-6 text-center text-sm text-ink-soft">
+        Already have an account?{' '}
+        <Link to="/login" className="font-semibold text-ink hover:underline">
+          Log in
+        </Link>
+      </p>
     </div>
   )
 }

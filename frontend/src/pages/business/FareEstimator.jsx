@@ -1,17 +1,21 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Calculator, ArrowRight } from 'lucide-react'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import Card from '../../components/ui/Card'
-import CTAButton from '../../components/common/CTAButton'
+import Button from '../../components/ui/Button'
 import AddressField from '../../components/booking/AddressField'
 import RouteMap from '../../components/booking/RouteMap'
 import VehicleCard from '../../components/booking/VehicleCard'
 import Input from '../../components/ui/Input'
+import { useAuth } from '../../context/AuthContext'
 import { VEHICLE_TYPES, haversineKm, estimateFare, capacityError } from '../../data/vehicles'
 import { useFareSettings } from '../../hooks/useFareSettings'
 
 export default function FareEstimator() {
-  usePageMeta('Fare Estimator | DayTrip', "Calculate your journey's cost estimate before you book.")
+  usePageMeta('Fare Estimator | DayTrip', 'Enter your pickup and destination to start booking your journey.')
+  const navigate = useNavigate()
+  const { status } = useAuth()
 
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
@@ -83,23 +87,27 @@ export default function FareEstimator() {
                 key={v.id}
                 vehicle={v}
                 fare={hasRoute ? fare : 0}
+                showPrice={false}
                 selected={vehicleId === v.id}
                 onSelect={() => setVehicleId(v.id)}
               />
             ))}
           </div>
 
-          <CTAButton
-            to="/register"
-            state={{ rebook: { pickup, destination, stops: [], vehicle: selectedVehicle, passengers: passengerCount } }}
+          <Button
             fullWidth
             size="lg"
             disabled={!canBook}
+            onClick={() =>
+              navigate(status === 'authenticated' ? '/app/home' : '/register', {
+                state: { rebook: { pickup, destination, stops: [], vehicle: selectedVehicle, passengers: passengerCount } },
+              })
+            }
           >
-            Book this ride <ArrowRight className="size-4.5" />
-          </CTAButton>
+            Continue to book <ArrowRight className="size-4.5" />
+          </Button>
           <p className="text-center text-xs text-ink-soft">
-            Fares shown are estimates. Create a free account to confirm and book.
+            Your pickup and destination carry straight through to the booking screen.
           </p>
         </div>
 

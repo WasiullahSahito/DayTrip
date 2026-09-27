@@ -6,7 +6,6 @@ import {
   Clock3,
   Wallet,
   Star,
-  Check,
   Smartphone,
   BarChart3,
   Users2,
@@ -14,6 +13,7 @@ import {
   Plane,
   Users,
   PartyPopper,
+  MapPin,
 } from 'lucide-react'
 import clsx from 'clsx'
 import { usePageMeta } from '../hooks/usePageMeta'
@@ -21,23 +21,56 @@ import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import AddressField from '../components/booking/AddressField'
 import VehicleCard from '../components/booking/VehicleCard'
-import { PROFILE_TYPES } from '../data/profileTypes'
+import { useAuth } from '../context/AuthContext'
 import { VEHICLE_TYPES } from '../data/vehicles'
 import { useFareSettings } from '../hooks/useFareSettings'
+
+const IRISH_COUNTIES = [
+  { name: 'Galway', places: 'Kylemore Abbey · Connemara · Salthill' },
+  { name: 'Dublin', places: 'Trinity College · Howth · Guinness Storehouse' },
+  { name: 'Clare', places: 'Cliffs of Moher · The Burren · Doolin' },
+  { name: 'Kerry', places: 'Ring of Kerry · Killarney · Dingle' },
+  { name: 'Cork', places: 'Blarney Castle · Kinsale · Cobh' },
+  { name: 'Mayo', places: 'Croagh Patrick · Achill Island · Westport' },
+  { name: 'Wicklow', places: 'Glendalough · Powerscourt · Wicklow Mountains' },
+  { name: 'Donegal', places: 'Slieve League · Glenveagh · Malin Head' },
+  { name: 'Sligo', places: 'Benbulben · Strandhill · Lough Gill' },
+  { name: 'Limerick', places: 'King John’s Castle · Adare · Lough Gur' },
+  { name: 'Kilkenny', places: 'Kilkenny Castle · Jerpoint Abbey · Thomastown' },
+  { name: 'Antrim', places: 'Giant’s Causeway · Carrick-a-Rede · Belfast' },
+]
+
+// Photos live in frontend/public/trips/<slug>.jpg. Until a file is added the card shows its gradient.
+const DAY_TRIPS = [
+  { slug: 'cliffs-of-moher', title: 'Cliffs of Moher & the Burren from Galway', duration: '8h', tint: 'from-sky-500 to-emerald-600' },
+  { slug: 'kylemore-connemara', title: 'Kylemore Abbey & Connemara from Galway', duration: '6h', tint: 'from-emerald-600 to-teal-800' },
+  { slug: 'glendalough', title: 'Glendalough & Wicklow Mountains from Dublin', duration: '7h', tint: 'from-lime-600 to-emerald-800' },
+  { slug: 'ring-of-kerry', title: 'Ring of Kerry from Killarney', duration: '8h', tint: 'from-indigo-500 to-sky-600' },
+  { slug: 'dingle', title: 'Dingle Peninsula & Slea Head Drive', duration: '7h', tint: 'from-cyan-500 to-blue-700' },
+  { slug: 'giants-causeway', title: 'Giant’s Causeway & Causeway Coast from Belfast', duration: '8h', tint: 'from-slate-500 to-cyan-700' },
+  { slug: 'blarney-kinsale', title: 'Blarney Castle & Kinsale from Cork', duration: '6h', tint: 'from-amber-500 to-orange-700' },
+  { slug: 'slieve-league', title: 'Slieve League & Donegal Coast', duration: '7h', tint: 'from-violet-500 to-indigo-700' },
+]
 
 export default function Landing() {
   usePageMeta('Book a Taxi Online | Easy & Convenient Taxi Booking', 'Book your taxi online with an easy-to-use web booker. Manage bookings, track your taxi, and handle all your transport needs from any device.')
   const navigate = useNavigate()
+  const { status } = useAuth()
   const FARE = useFareSettings()
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
 
   function handleQuickBook(e) {
     e.preventDefault()
+    // A signed-in visitor goes straight to the booking screen with their
+    // route; everyone else creates an account first, then lands there —
+    // either way pickup/destination ride along as router state, not a
+    // second location system.
+    const target = status === 'authenticated' ? '/app/home' : '/register'
     if (pickup && destination) {
-      navigate('/register', { state: { rebook: { pickup, destination, stops: [] } } })
+      navigate(target, { state: { rebook: { pickup, destination, stops: [] } } })
     } else {
-      navigate('/register')
+      navigate(target)
     }
   }
 
@@ -145,6 +178,42 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Explore Ireland */}
+      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6">
+        <div className="rounded-[2rem] bg-white p-6 shadow-[var(--shadow-card)] sm:p-12">
+          <h2 className="mx-auto max-w-3xl text-center text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+            Explore all 32 counties of Ireland with our private car transfers &amp; day trips
+          </h2>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {IRISH_COUNTIES.map((c) => (
+              <Link
+                key={c.name}
+                to="/register"
+                className="rounded-2xl border border-border bg-surface-muted/50 p-4 transition-colors hover:border-ink/30 hover:bg-white"
+              >
+                <p className="flex items-center gap-2 font-bold text-ink">
+                  <MapPin className="size-4 text-primary-dark" /> {c.name}
+                </p>
+                <p className="mt-1.5 text-sm text-ink-soft">{c.places}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Top sightseeing day trips */}
+      <section className="bg-surface-muted py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Top sightseeing day trips</h2>
+          <p className="mt-3 text-ink-soft">Private-driver day trips across Ireland — no coach schedules, just your group.</p>
+          <div className="mt-10 grid gap-x-5 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
+            {DAY_TRIPS.map((t) => (
+              <DayTripCard key={t.slug} trip={t} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Multiple ways to travel */}
       <section className="bg-surface-muted py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -182,57 +251,6 @@ export default function Landing() {
           <Step number="1" title="Set your journey" desc="Enter your pickup, destination, and any stops along the way." />
           <Step number="2" title="Pick your ride" desc="Compare vehicle types and see an upfront fare estimate." />
           <Step number="3" title="Track & go" desc="Follow your driver on the map and get live status updates." />
-        </div>
-      </section>
-
-      {/* Account types */}
-      <section id="personal" className="bg-surface-muted py-20">
-        <div id="business" className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
-              An account for every kind of traveller
-            </h2>
-            <p className="mt-3 text-ink-soft">
-              Whether you’re booking for yourself or your whole team, there’s a plan that fits.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {PROFILE_TYPES.map((plan) => (
-              <Card
-                key={plan.id}
-                className={clsx(
-                  '!p-7 flex flex-col',
-                  plan.highlight && 'border-primary ring-2 ring-primary/40'
-                )}
-              >
-                {plan.highlight && (
-                  <span className="mb-3 inline-flex w-fit items-center rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-ink">
-                    Most popular
-                  </span>
-                )}
-                <h3 className="text-xl font-bold text-ink">{plan.label}</h3>
-                <p className="mt-0.5 text-sm font-semibold text-ink-soft">{plan.subLabel}</p>
-                <p className="mt-3 text-sm leading-relaxed text-ink-soft">{plan.description}</p>
-                <ul className="mt-5 space-y-2.5">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-ink">
-                      <Check className="mt-0.5 size-4 shrink-0 text-success" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-7">
-                  <Button
-                    fullWidth
-                    variant={plan.highlight ? 'primary' : 'outline'}
-                    onClick={() => navigate('/register', { state: { accountType: plan.id } })}
-                  >
-                    Choose {plan.label}
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -276,6 +294,29 @@ export default function Landing() {
         </div>
       </section>
     </div>
+  )
+}
+
+function DayTripCard({ trip }) {
+  const [missing, setMissing] = useState(false)
+  return (
+    <Link to="/business/fare-estimator" className="group block">
+      <div className={clsx('relative aspect-square overflow-hidden rounded-3xl bg-linear-to-br', trip.tint)}>
+        {!missing && (
+          <img
+            src={`/trips/${trip.slug}.jpg`}
+            alt={trip.title}
+            loading="lazy"
+            onError={() => setMissing(true)}
+            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
+        {missing && <MapPin className="absolute left-1/2 top-1/2 size-12 -translate-x-1/2 -translate-y-1/2 text-white/60" />}
+      </div>
+      <h3 className="mt-3 px-1 font-semibold leading-snug text-ink">{trip.title}</h3>
+      <p className="mt-1 px-1 text-sm text-ink-soft">About {trip.duration} · Private group</p>
+      <p className="px-1 text-sm text-ink-soft underline">Get a price quote</p>
+    </Link>
   )
 }
 

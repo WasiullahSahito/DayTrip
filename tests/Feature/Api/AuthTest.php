@@ -77,10 +77,52 @@ class AuthTest extends TestCase
 
     public function test_invalid_registration_payload_is_rejected(): void
     {
+        // Password is intentionally not in this list — it's optional (see
+        // test_a_user_can_register_without_a_password below).
         $response = $this->postJson('/api/auth/register', ['email' => 'not-an-email']);
 
         $response->assertStatus(422)
-            ->assertJsonValidationErrors(['firstName', 'lastName', 'email', 'password', 'phone', 'accountType']);
+            ->assertJsonValidationErrors(['firstName', 'lastName', 'email', 'phone', 'accountType']);
+    }
+
+    public function test_a_user_can_register_without_a_password(): void
+    {
+        // The quick pickup/drop-off booking flow lets a new user skip
+        // setting a password entirely, rather than being forced through one.
+        $response = $this->postJson('/api/auth/register', [
+            'firstName' => 'Aoife',
+            'lastName' => 'Murphy',
+            'email' => 'passwordless@example.com',
+            'phone' => '+353 87 123 4567',
+            'accountType' => 'personal',
+        ]);
+
+        $response->assertCreated()->assertJsonStructure(['data' => ['user', 'token']]);
+
+        $user = User::where('email', 'passwordless@example.com')->first();
+        $this->assertNotNull($user);
+        $this->assertNull($user->password);
+    }
+
+    public function test_login_fails_gracefully_for_a_passwordless_account(): void
+    {
+        $this->postJson('/api/auth/register', [
+            'firstName' => 'Aoife',
+            'lastName' => 'Murphy',
+            'email' => 'passwordless2@example.com',
+            'phone' => '+353 87 123 4567',
+            'accountType' => 'personal',
+        ])->assertCreated();
+
+        // No password was ever set, so any login attempt is simply rejected
+        // — not a crash — with the same generic message as a wrong password.
+        // The account owner sets a password via "Forgot password" instead.
+        $response = $this->postJson('/api/auth/login', [
+            'email' => 'passwordless2@example.com',
+            'password' => 'Whatever123',
+        ]);
+
+        $response->assertStatus(422)->assertJsonValidationErrors('email');
     }
 
     public function test_a_user_can_login_with_correct_credentials(): void

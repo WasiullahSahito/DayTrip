@@ -27,7 +27,7 @@ export default function MarketingFooter() {
         <FooterColumn
           title="Personal"
           links={[
-            { label: 'Taxi', to: '/#personal' },
+            { label: 'Taxi', to: '/register' },
             { label: 'Book Now', to: '/book' },
           ]}
         />
