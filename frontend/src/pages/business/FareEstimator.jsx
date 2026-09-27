@@ -100,7 +100,16 @@ export default function FareEstimator() {
             disabled={!canBook}
             onClick={() =>
               navigate(status === 'authenticated' ? '/app/home' : '/register', {
-                state: { rebook: { pickup, destination, stops: [], vehicle: selectedVehicle, passengers: passengerCount } },
+                state: {
+                  rebook: {
+                    pickup,
+                    destination,
+                    stops: [],
+                    vehicle: selectedVehicle,
+                    passengers: passengerCount,
+                    waitingMinutes: waitingCount,
+                  },
+                },
               })
             }
           >

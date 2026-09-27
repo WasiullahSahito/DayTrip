@@ -123,7 +123,7 @@ export default function Landing() {
                 <AddressField placeholder="Pickup location" value={pickup} onChange={setPickup} tone="pickup" />
                 <AddressField placeholder="Destination" value={destination} onChange={setDestination} tone="destination" />
                 <Button type="submit" fullWidth size="lg">
-                  See prices <ArrowRight className="size-4.5" />
+                  Book a ride <ArrowRight className="size-4.5" />
                 </Button>
               </form>
               <p className="mt-3 text-center text-xs text-ink-soft">

@@ -55,7 +55,7 @@ export default function NewBooking() {
 
   const [vehicleId, setVehicleId] = useState(rebook?.vehicle?.id || 'any')
   const [passengers, setPassengers] = useState(String(rebook?.passengers || 1))
-  const [waitingMinutes, setWaitingMinutes] = useState('0')
+  const [waitingMinutes, setWaitingMinutes] = useState(String(rebook?.waitingMinutes ?? 0))
   const [quotes, setQuotes] = useState({})
   const [loadingQuotes, setLoadingQuotes] = useState(false)
   const [vehiclePickerOpen, setVehiclePickerOpen] = useState(false)
