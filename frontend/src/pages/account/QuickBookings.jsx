@@ -10,13 +10,14 @@ import Modal from '../../components/ui/Modal'
 import Input from '../../components/ui/Input'
 import ConfirmDialog from '../../components/ui/ConfirmDialog'
 import AddressField from '../../components/booking/AddressField'
-import { VEHICLE_TYPES } from '../../data/vehicles'
 import * as bookingService from '../../services/bookingService'
 import { useToast } from '../../context/ToastContext'
+import { useVehicleTypes } from '../../hooks/useVehicleTypes'
 
 export default function QuickBookings() {
   const navigate = useNavigate()
   const toast = useToast()
+  const vehicles = useVehicleTypes()
   const [items, setItems] = useState(null)
   const [addOpen, setAddOpen] = useState(false)
   const [removeTarget, setRemoveTarget] = useState(null)
@@ -25,7 +26,7 @@ export default function QuickBookings() {
   const [label, setLabel] = useState('')
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
-  const [vehicleId, setVehicleId] = useState(VEHICLE_TYPES[0].id)
+  const [vehicleId, setVehicleId] = useState('saloon')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -36,7 +37,7 @@ export default function QuickBookings() {
     e.preventDefault()
     if (!label.trim() || !pickup || !destination) return
     setSaving(true)
-    const vehicle = VEHICLE_TYPES.find((v) => v.id === vehicleId)
+    const vehicle = vehicles.find((v) => v.id === vehicleId)
     const next = await bookingService.addQuickBooking({ label: label.trim(), pickup, destination, vehicle })
     setItems(next)
     setSaving(false)
@@ -121,7 +122,7 @@ export default function QuickBookings() {
           <div>
             <span className="mb-1.5 block text-sm font-medium text-ink">Vehicle</span>
             <div className="flex flex-wrap gap-2">
-              {VEHICLE_TYPES.map((v) => (
+              {vehicles.map((v) => (
                 <button
                   type="button"
                   key={v.id}

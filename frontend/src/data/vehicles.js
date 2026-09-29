@@ -76,9 +76,9 @@ export const VEHICLE_TYPES = [
   },
 ]
 
-export function findVehicle(id) {
+export function findVehicle(id, vehicles = VEHICLE_TYPES) {
   if (id === ANY_TAXI.id) return ANY_TAXI
-  return VEHICLE_TYPES.find((v) => v.id === id)
+  return vehicles.find((v) => v.id === id)
 }
 
 export function haversineKm(a, b) {
@@ -114,10 +114,11 @@ export function estimateFare(distanceKm, passengers = 1, waitingMinutes = 0, rat
 }
 
 // Returns a message if the party doesn't fit the vehicle (naming the smallest
-// vehicle that would), or null if it fits.
-export function capacityError(vehicle, passengers) {
+// vehicle that would), or null if it fits. Pass the live vehicle list (from
+// useVehicleTypes) so the suggestion only ever names an actually bookable type.
+export function capacityError(vehicle, passengers, vehicles = VEHICLE_TYPES) {
   if (!vehicle || passengers <= vehicle.passengers) return null
-  const bigger = VEHICLE_TYPES.filter((v) => v.passengers >= passengers).sort(
+  const bigger = vehicles.filter((v) => v.passengers >= passengers).sort(
     (a, b) => a.passengers - b.passengers
   )[0]
   return bigger

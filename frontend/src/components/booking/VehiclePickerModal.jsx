@@ -2,9 +2,10 @@ import { useState } from 'react'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import VehicleTypeRow from './VehicleTypeRow'
-import { VEHICLE_TYPES } from '../../data/vehicles'
+import { useVehicleTypes } from '../../hooks/useVehicleTypes'
 
 export default function VehiclePickerModal({ open, onClose, value, onChange }) {
+  const vehicles = useVehicleTypes()
   const [pending, setPending] = useState(value)
   const [wasOpen, setWasOpen] = useState(open)
 
@@ -39,7 +40,7 @@ export default function VehiclePickerModal({ open, onClose, value, onChange }) {
       size="sm"
     >
       <div className="space-y-3 pb-2">
-        {VEHICLE_TYPES.map((v) => (
+        {vehicles.map((v) => (
           <VehicleTypeRow key={v.id} vehicle={v} selected={pending === v.id} onSelect={() => setPending(v.id)} />
         ))}
       </div>

@@ -28,6 +28,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { findVehicle, capacityError } from '../../data/vehicles'
 import { useFareSettings } from '../../hooks/useFareSettings'
+import { useVehicleTypes } from '../../hooks/useVehicleTypes'
 import { useDebounce } from '../../hooks/useDebounce'
 import * as bookingService from '../../services/bookingService'
 import * as paymentService from '../../services/paymentService'
@@ -77,11 +78,12 @@ export default function NewBooking() {
   const [booking, setBooking] = useState(false)
   const [pendingPaymentBookingId, setPendingPaymentBookingId] = useState(null)
 
-  const selectedVehicle = findVehicle(vehicleId)
+  const vehicles = useVehicleTypes()
+  const selectedVehicle = findVehicle(vehicleId, vehicles)
   const FARE = useFareSettings()
   const passengerCount = parseInt(passengers, 10) || 0
   const waitingCount = Math.min(Math.max(parseInt(waitingMinutes, 10) || 0, 0), FARE.maxWaitingMinutes)
-  const seatError = passengerCount >= 1 ? capacityError(selectedVehicle, passengerCount) : null
+  const seatError = passengerCount >= 1 ? capacityError(selectedVehicle, passengerCount, vehicles) : null
   const quotePassengers = useDebounce(Math.max(passengerCount, 1))
   const quoteWaiting = useDebounce(waitingCount)
   const hasRoute = pickup && destination

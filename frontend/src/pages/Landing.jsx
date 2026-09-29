@@ -22,8 +22,8 @@ import Card from '../components/ui/Card'
 import AddressField from '../components/booking/AddressField'
 import VehicleCard from '../components/booking/VehicleCard'
 import { useAuth } from '../context/AuthContext'
-import { VEHICLE_TYPES } from '../data/vehicles'
 import { useFareSettings } from '../hooks/useFareSettings'
+import { useVehicleTypes } from '../hooks/useVehicleTypes'
 
 const IRISH_COUNTIES = [
   { name: 'Galway', places: 'Kylemore Abbey · Connemara · Salthill' },
@@ -57,6 +57,7 @@ export default function Landing() {
   const navigate = useNavigate()
   const { status } = useAuth()
   const FARE = useFareSettings()
+  const vehicles = useVehicleTypes()
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
 
@@ -222,7 +223,7 @@ export default function Landing() {
             <p className="mt-3 text-ink-soft">Pick the vehicle that fits your journey — see live pricing when you book.</p>
           </div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {VEHICLE_TYPES.map((v) => (
+            {vehicles.map((v) => (
               <VehicleCard
                 key={v.id}
                 vehicle={v}

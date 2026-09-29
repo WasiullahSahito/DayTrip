@@ -9,17 +9,19 @@ import RouteMap from '../../components/booking/RouteMap'
 import VehicleCard from '../../components/booking/VehicleCard'
 import Input from '../../components/ui/Input'
 import { useAuth } from '../../context/AuthContext'
-import { VEHICLE_TYPES, haversineKm, estimateFare, capacityError } from '../../data/vehicles'
+import { haversineKm, estimateFare, capacityError } from '../../data/vehicles'
 import { useFareSettings } from '../../hooks/useFareSettings'
+import { useVehicleTypes } from '../../hooks/useVehicleTypes'
 
 export default function FareEstimator() {
   usePageMeta('Fare Estimator | DayTrip', 'Enter your pickup and destination to start booking your journey.')
   const navigate = useNavigate()
   const { status } = useAuth()
+  const vehicles = useVehicleTypes()
 
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
-  const [vehicleId, setVehicleId] = useState(VEHICLE_TYPES[0].id)
+  const [vehicleId, setVehicleId] = useState('saloon')
   const [passengers, setPassengers] = useState('1')
   const [waitingMinutes, setWaitingMinutes] = useState('0')
 
@@ -29,11 +31,11 @@ export default function FareEstimator() {
     distanceKm = haversineKm(pickup, destination) * 1.35
   }
 
-  const selectedVehicle = VEHICLE_TYPES.find((v) => v.id === vehicleId)
+  const selectedVehicle = vehicles.find((v) => v.id === vehicleId) || vehicles[0]
   const FARE = useFareSettings()
   const passengerCount = parseInt(passengers, 10) || 0
   const waitingCount = Math.min(Math.max(parseInt(waitingMinutes, 10) || 0, 0), FARE.maxWaitingMinutes)
-  const seatError = passengerCount >= 1 ? capacityError(selectedVehicle, passengerCount) : null
+  const seatError = passengerCount >= 1 ? capacityError(selectedVehicle, passengerCount, vehicles) : null
   const canBook = hasRoute && passengerCount >= 1 && !seatError
   const fare = estimateFare(distanceKm, Math.max(passengerCount, 1), waitingCount, FARE)
 
@@ -82,7 +84,7 @@ export default function FareEstimator() {
           </Card>
 
           <div className="space-y-3">
-            {VEHICLE_TYPES.map((v) => (
+            {vehicles.map((v) => (
               <VehicleCard
                 key={v.id}
                 vehicle={v}
