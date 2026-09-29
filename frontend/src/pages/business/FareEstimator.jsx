@@ -8,7 +8,6 @@ import AddressField from '../../components/booking/AddressField'
 import RouteMap from '../../components/booking/RouteMap'
 import VehicleCard from '../../components/booking/VehicleCard'
 import Input from '../../components/ui/Input'
-import { useAuth } from '../../context/AuthContext'
 import { haversineKm, estimateFare, capacityError } from '../../data/vehicles'
 import { useFareSettings } from '../../hooks/useFareSettings'
 import { useVehicleTypes } from '../../hooks/useVehicleTypes'
@@ -16,7 +15,6 @@ import { useVehicleTypes } from '../../hooks/useVehicleTypes'
 export default function FareEstimator() {
   usePageMeta('Fare Estimator | DayTrip', 'Enter your pickup and destination to start booking your journey.')
   const navigate = useNavigate()
-  const { status } = useAuth()
   const vehicles = useVehicleTypes()
 
   const [pickup, setPickup] = useState(null)
@@ -101,7 +99,7 @@ export default function FareEstimator() {
             size="lg"
             disabled={!canBook}
             onClick={() =>
-              navigate(status === 'authenticated' ? '/app/home' : '/register', {
+              navigate('/app/home', {
                 state: {
                   rebook: {
                     pickup,

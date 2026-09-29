@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
-import { Car, History, Star, User } from 'lucide-react'
+import { Car, History, Star, User, LogIn } from 'lucide-react'
 import clsx from 'clsx'
+import { useAuth } from '../../context/AuthContext'
 
 const ITEMS = [
   { to: '/app/home', label: 'Book', icon: Car },
@@ -9,11 +10,21 @@ const ITEMS = [
   { to: '/app/profile', label: 'Account', icon: User },
 ]
 
+// A guest booking pre-account only has one real page ("Book") — the rest
+// require a session they don't have yet, so swap them for a Log in link.
+const GUEST_ITEMS = [
+  { to: '/app/home', label: 'Book', icon: Car },
+  { to: '/login', label: 'Log in', icon: LogIn },
+]
+
 export default function BottomNav() {
+  const { status } = useAuth()
+  const items = status === 'authenticated' ? ITEMS : GUEST_ITEMS
+
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 backdrop-blur pb-[env(safe-area-inset-bottom)] lg:hidden">
       <div className="mx-auto flex max-w-md items-stretch justify-between px-2">
-        {ITEMS.map(({ to, label, icon: Icon }) => (
+        {items.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}

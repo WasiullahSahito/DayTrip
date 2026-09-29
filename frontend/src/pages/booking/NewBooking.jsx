@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   Calendar,
   Clock,
@@ -40,7 +40,7 @@ const TODAY = new Date().toISOString().slice(0, 10)
 const DEFAULT_RETURN_TIME = new Date(Date.now() + 3 * 3600000).toTimeString().slice(0, 5)
 
 export default function NewBooking() {
-  const { user } = useAuth()
+  const { user, register } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
@@ -61,7 +61,9 @@ export default function NewBooking() {
   const [loadingQuotes, setLoadingQuotes] = useState(false)
   const [vehiclePickerOpen, setVehiclePickerOpen] = useState(false)
 
-  const [paymentMethod, setPaymentMethod] = useState(null)
+  // A guest (no account yet) can only pay in car, so that's the starting
+  // value; a signed-in user's real default is filled in by the effect below.
+  const [paymentMethod, setPaymentMethod] = useState(user ? null : { type: 'cash' })
   const [cards, setCards] = useState([])
   const [paymentPickerOpen, setPaymentPickerOpen] = useState(false)
 
@@ -91,12 +93,15 @@ export default function NewBooking() {
   const isAirportPickup = pickup?.label.toLowerCase().includes('airport')
 
   useEffect(() => {
+    // A guest booking pre-account has no saved cards yet — cash it is,
+    // until they actually have an account (created on submit below).
+    if (!user) return
     paymentService.getCards().then((c) => {
       setCards(c)
       const def = c.find((card) => card.isDefault)
       setPaymentMethod(def ? { type: 'card', cardId: def.id } : { type: 'cash' })
     })
-  }, [])
+  }, [user])
 
   useEffect(() => {
     if (!pickup || !destination) return
@@ -144,9 +149,25 @@ export default function NewBooking() {
     if (waitingCount !== (parseInt(waitingMinutes, 10) || 0)) next.waitingMinutes = 'Waiting time is charged for one hour at most'
     if (!isNotEmpty(passengerName)) next.passengerName = 'Passenger name is required'
     if (!isValidPhone(phone)) next.phone = 'Please enter a valid phone number'
-    if (confirmationEmail && !isValidEmail(confirmationEmail)) next.confirmationEmail = 'Please enter a valid email address'
+    // Signed in: this is just where the confirmation email goes, optional.
+    // Guest: it's also about to become their account's email, so it's required.
+    if (!user && !isValidEmail(confirmationEmail)) next.confirmationEmail = 'An email is required to set up your account'
+    else if (user && confirmationEmail && !isValidEmail(confirmationEmail)) next.confirmationEmail = 'Please enter a valid email address'
     setErrors(next)
     return Object.keys(next).length === 0
+  }
+
+  function rebookState() {
+    return {
+      rebook: {
+        pickup,
+        destination,
+        stops: stops.filter(Boolean),
+        vehicle: selectedVehicle,
+        passengers: passengerCount,
+        waitingMinutes: waitingCount,
+      },
+    }
   }
 
   async function handleBook() {
@@ -156,6 +177,25 @@ export default function NewBooking() {
     }
     setBooking(true)
     try {
+      if (!user) {
+        // Guest checkout: create the account silently from the details
+        // already on this form — no password (see Register.jsx), no
+        // separate signup page. Reuses the exact same registration the
+        // signup page itself calls.
+        const [firstName, ...rest] = passengerName.trim().split(/\s+/)
+        const lastName = rest.join(' ') || firstName
+        try {
+          await register({ firstName, lastName, email: confirmationEmail, phone, accountType: 'personal' })
+        } catch (err) {
+          if (err.errors?.email) {
+            toast.error('That email already has an account — please log in to continue.')
+            navigate('/login', { state: rebookState() })
+            return
+          }
+          throw err
+        }
+      }
+
       const scheduledFor =
         timeMode === 'later' && pickupTime ? new Date(`${pickupDate}T${pickupTime}`).getTime() : null
       const result = await bookingService.createBooking({
@@ -204,6 +244,16 @@ export default function NewBooking() {
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <div className="grid gap-6 lg:grid-cols-[1fr_1.05fr]">
         <div className="order-2 space-y-4 lg:order-1">
+          {!user && (
+            <p className="rounded-xl bg-surface-muted px-4 py-3 text-xs leading-relaxed text-ink-soft">
+              Booking as a guest — we’ll set up your account automatically from the details below, no password
+              needed. Already have an account?{' '}
+              <Link to="/login" state={rebookState()} className="font-semibold text-ink hover:underline">
+                Log in
+              </Link>{' '}
+              instead.
+            </p>
+          )}
           <div>
             <RouteFieldsPanel
               pickup={pickup}
@@ -283,13 +333,14 @@ export default function NewBooking() {
               onChange={(e) => setNotes(e.target.value)}
             />
             <Input
-              label="Send Booking Confirmation To"
+              label={user ? 'Send Booking Confirmation To' : 'Email Address'}
               icon={<Mail className="size-4.5" />}
               type="email"
               placeholder="you@example.com"
               value={confirmationEmail}
               onChange={update(setConfirmationEmail, 'confirmationEmail')}
               error={errors.confirmationEmail}
+              hint={user ? undefined : "We'll use this to set up your account and send your confirmation"}
             />
           </div>
 
@@ -319,7 +370,7 @@ export default function NewBooking() {
           <CollapsibleRow
             icon={paymentMethod?.type === 'cash' ? <Wallet className="size-5" /> : <CreditCard className="size-5" />}
             title="Payment method"
-            subtitle={paymentLabel}
+            subtitle={user ? paymentLabel : 'Pay in car — card payments need an account'}
             onClick={() => setPaymentPickerOpen(true)}
           />
 
@@ -369,6 +420,13 @@ export default function NewBooking() {
           <Button fullWidth size="lg" loading={booking} onClick={handleBook}>
             {booking ? 'Confirming your booking…' : 'Book'}
           </Button>
+          {!user && (
+            <p className="text-center text-xs text-ink-soft">
+              By booking you agree to our{' '}
+              <Link to="/terms" className="font-semibold text-ink hover:underline">Terms &amp; Conditions</Link> and{' '}
+              <Link to="/privacy" className="font-semibold text-ink hover:underline">Privacy Policy</Link>.
+            </p>
+          )}
         </div>
 
         <div className="order-1 lg:order-2">

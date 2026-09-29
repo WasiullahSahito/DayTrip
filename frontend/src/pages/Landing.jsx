@@ -21,7 +21,6 @@ import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import AddressField from '../components/booking/AddressField'
 import VehicleCard from '../components/booking/VehicleCard'
-import { useAuth } from '../context/AuthContext'
 import { useFareSettings } from '../hooks/useFareSettings'
 import { useVehicleTypes } from '../hooks/useVehicleTypes'
 
@@ -55,7 +54,6 @@ const DAY_TRIPS = [
 export default function Landing() {
   usePageMeta('Book a Taxi Online | Easy & Convenient Taxi Booking', 'Book your taxi online with an easy-to-use web booker. Manage bookings, track your taxi, and handle all your transport needs from any device.')
   const navigate = useNavigate()
-  const { status } = useAuth()
   const FARE = useFareSettings()
   const vehicles = useVehicleTypes()
   const [pickup, setPickup] = useState(null)
@@ -63,15 +61,14 @@ export default function Landing() {
 
   function handleQuickBook(e) {
     e.preventDefault()
-    // A signed-in visitor goes straight to the booking screen with their
-    // route; everyone else creates an account first, then lands there —
-    // either way pickup/destination ride along as router state, not a
-    // second location system.
-    const target = status === 'authenticated' ? '/app/home' : '/register'
+    // Straight to the booking screen either way — a signed-out visitor
+    // books as a guest there (their account is created on submit, no
+    // separate signup page) — pickup/destination ride along as router
+    // state, not a second location system.
     if (pickup && destination) {
-      navigate(target, { state: { rebook: { pickup, destination, stops: [] } } })
+      navigate('/app/home', { state: { rebook: { pickup, destination, stops: [] } } })
     } else {
-      navigate(target)
+      navigate('/app/home')
     }
   }
 
