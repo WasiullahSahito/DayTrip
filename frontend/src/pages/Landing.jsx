@@ -7,8 +7,6 @@ import {
   Wallet,
   Star,
   Smartphone,
-  BarChart3,
-  Users2,
   Briefcase,
   Plane,
   Users,
@@ -252,33 +250,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Business callout */}
-      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-        <Card className="grid gap-8 !p-8 sm:!p-12 lg:grid-cols-2 lg:items-center">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1.5 text-xs font-bold text-ink">
-              <BarChart3 className="size-3.5" /> For teams
-            </span>
-            <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-ink">
-              Give your business full visibility
-            </h2>
-            <p className="mt-3 leading-relaxed text-ink-soft">
-              Add users, set travel policies, and get consolidated invoicing with expense
-              reports built in — so every trip is accounted for.
-            </p>
-            <Button className="mt-6" onClick={() => navigate('/register', { state: { accountType: 'business-plus' } })}>
-              Set up a business account <ArrowRight className="size-4.5" />
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <MiniStat icon={<Users2 className="size-5" />} value="Unlimited" label="team members on Business+" />
-            <MiniStat icon={<Wallet className="size-5" />} value="Weekly" label="or monthly invoicing" />
-            <MiniStat icon={<ShieldCheck className="size-5" />} value="Secure" label="PIN-protected bookings" />
-            <MiniStat icon={<BarChart3 className="size-5" />} value="Live" label="expense reporting" />
-          </div>
-        </Card>
-      </section>
-
       {/* Final CTA */}
       <section className="bg-ink py-16">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6">
@@ -368,12 +339,3 @@ function Step({ number, title, desc }) {
   )
 }
 
-function MiniStat({ icon, value, label }) {
-  return (
-    <div className="rounded-2xl bg-surface-muted p-4">
-      <span className="flex size-9 items-center justify-center rounded-lg bg-white text-ink">{icon}</span>
-      <p className="mt-3 text-base font-extrabold text-ink">{value}</p>
-      <p className="text-xs text-ink-soft">{label}</p>
-    </div>
-  )
-}
