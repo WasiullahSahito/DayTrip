@@ -104,6 +104,23 @@ export default function Login() {
         </Button>
       </form>
 
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-border" />
+        <span className="text-xs font-semibold text-ink-soft">OR</span>
+        <div className="h-px flex-1 bg-border" />
+      </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        fullWidth
+        size="lg"
+        className="!rounded-full !border-2 !border-primary"
+        onClick={() => navigate('/app/home', rebook ? { state: { rebook } } : undefined)}
+      >
+        Continue As Guest
+      </Button>
+
       <p className="mt-6 text-center text-sm text-ink-soft">
         Don’t have an account?{' '}
         <Link to="/register" className="font-semibold text-ink hover:underline">
