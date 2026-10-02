@@ -189,7 +189,7 @@ export default function NewBooking() {
         } catch (err) {
           if (err.errors?.email) {
             toast.error('That email already has an account — please log in to continue.')
-            navigate('/login', { state: rebookState() })
+            navigate('/login', { state: { ...rebookState(), email: confirmationEmail } })
             return
           }
           throw err

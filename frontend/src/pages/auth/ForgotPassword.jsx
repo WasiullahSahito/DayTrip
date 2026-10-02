@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Mail, ChevronLeft, MailCheck } from 'lucide-react'
 import { usePageMeta } from '../../hooks/usePageMeta'
 import Input from '../../components/ui/Input'
@@ -9,7 +9,8 @@ import * as authService from '../../services/authService'
 
 export default function ForgotPassword() {
   usePageMeta('Forgot Password | DayTrip', 'Reset the password for your DayTrip account.')
-  const [email, setEmail] = useState('')
+  const location = useLocation()
+  const [email, setEmail] = useState(location.state?.email || '')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)

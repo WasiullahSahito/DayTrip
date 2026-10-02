@@ -15,8 +15,12 @@ export default function Login() {
   const navigate = useNavigate()
   const location = useLocation()
   const rebook = location.state?.rebook
+  // Set when NewBooking's guest checkout bounces here because the email
+  // already has an account — most likely a passwordless one from an
+  // earlier guest booking, so it's worth a direct nudge toward resetting.
+  const prefillEmail = location.state?.email
 
-  const [form, setForm] = useState({ email: '', password: '' })
+  const [form, setForm] = useState({ email: prefillEmail || '', password: '' })
   const [remember, setRemember] = useState(true)
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
@@ -56,6 +60,13 @@ export default function Login() {
       <h1 className="text-2xl font-extrabold text-ink">Welcome back</h1>
       <p className="mt-1.5 text-sm text-ink-soft">Log in to book and manage your rides.</p>
 
+      {prefillEmail && (
+        <p className="mt-4 rounded-lg bg-primary-light px-3 py-2.5 text-sm leading-relaxed text-ink">
+          {prefillEmail} already has an account. If you booked as a guest before, you may not have
+          set a password yet — use "Lost your password?" below to set one.
+        </p>
+      )}
+
       <form onSubmit={onSubmit} className="mt-6 space-y-4" noValidate>
         <Input
           label="Email address"
@@ -94,7 +105,7 @@ export default function Login() {
             />
             Remember me
           </label>
-          <Link to="/forgot-password" className="text-sm font-semibold text-ink hover:underline">
+          <Link to="/forgot-password" state={{ email: form.email }} className="text-sm font-semibold text-ink hover:underline">
             Lost your password?
           </Link>
         </div>
