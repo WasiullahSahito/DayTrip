@@ -19,7 +19,6 @@ import Button from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import AddressField from '../components/booking/AddressField'
 import VehicleCard from '../components/booking/VehicleCard'
-import { useFareSettings } from '../hooks/useFareSettings'
 import { useVehicleTypes } from '../hooks/useVehicleTypes'
 
 const IRISH_COUNTIES = [
@@ -52,7 +51,6 @@ const DAY_TRIPS = [
 export default function Landing() {
   usePageMeta('Book a Taxi Online | Easy & Convenient Taxi Booking', 'Book your taxi online with an easy-to-use web booker. Manage bookings, track your taxi, and handle all your transport needs from any device.')
   const navigate = useNavigate()
-  const FARE = useFareSettings()
   const vehicles = useVehicleTypes()
   const [pickup, setPickup] = useState(null)
   const [destination, setDestination] = useState(null)
@@ -215,15 +213,14 @@ export default function Landing() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Multiple ways to travel</h2>
-            <p className="mt-3 text-ink-soft">Pick the vehicle that fits your journey — see live pricing when you book.</p>
+            <p className="mt-3 text-ink-soft">Pick the vehicle that fits your journey — see your fare when you book.</p>
           </div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {vehicles.map((v) => (
               <VehicleCard
                 key={v.id}
                 vehicle={v}
-                fare={FARE.baseFare}
-                fromPrice
+                showPrice={false}
                 showEta={false}
                 selected={false}
                 onSelect={() => navigate('/business/fare-estimator')}
