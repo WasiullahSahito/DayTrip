@@ -43,6 +43,13 @@ export function AuthProvider({ children }) {
     return u
   }, [])
 
+  const guestCheckout = useCallback(async (payload) => {
+    const u = await authService.guestCheckout(payload)
+    setUser(u)
+    setStatus('authenticated')
+    return u
+  }, [])
+
   const logout = useCallback(async () => {
     await authService.logout()
     setUser(null)
@@ -59,7 +66,7 @@ export function AuthProvider({ children }) {
   )
 
   return (
-    <AuthContext.Provider value={{ user, status, login, register, logout, updateProfile }}>
+    <AuthContext.Provider value={{ user, status, login, register, guestCheckout, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   )

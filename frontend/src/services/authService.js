@@ -27,6 +27,12 @@ export async function register(payload) {
   return data.user
 }
 
+export async function guestCheckout({ firstName, lastName, email, phone }) {
+  const data = await api.post('/auth/guest', { firstName, lastName, email, phone })
+  setToken(data.token)
+  return data.user
+}
+
 export async function logout() {
   try {
     await api.post('/auth/logout')

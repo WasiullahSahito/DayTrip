@@ -22,6 +22,7 @@ import RouteFieldsPanel from '../../components/booking/RouteFieldsPanel'
 import RouteMap from '../../components/booking/RouteMap'
 import CollapsibleRow from '../../components/booking/CollapsibleRow'
 import VehiclePickerModal from '../../components/booking/VehiclePickerModal'
+import AddCardModal from '../../components/booking/AddCardModal'
 import PaymentPickerModal from '../../components/booking/PaymentPickerModal'
 import StripePaymentModal from '../../components/booking/StripePaymentModal'
 import { useAuth } from '../../context/AuthContext'
@@ -40,7 +41,7 @@ const TODAY = new Date().toISOString().slice(0, 10)
 const DEFAULT_RETURN_TIME = new Date(Date.now() + 3 * 3600000).toTimeString().slice(0, 5)
 
 export default function NewBooking() {
-  const { user, register } = useAuth()
+  const { user, guestCheckout } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
   const location = useLocation()
@@ -79,6 +80,7 @@ export default function NewBooking() {
   const [errors, setErrors] = useState({})
   const [booking, setBooking] = useState(false)
   const [pendingPaymentBookingId, setPendingPaymentBookingId] = useState(null)
+  const [guestCardOpen, setGuestCardOpen] = useState(false)
 
   const vehicles = useVehicleTypes()
   const selectedVehicle = findVehicle(vehicleId, vehicles)
@@ -185,7 +187,9 @@ export default function NewBooking() {
         const [firstName, ...rest] = passengerName.trim().split(/\s+/)
         const lastName = rest.join(' ') || firstName
         try {
-          await register({ firstName, lastName, email: confirmationEmail, phone, accountType: 'personal' })
+          // Signs in an earlier passwordless guest account too, so repeat
+          // guests aren't bounced to a login they have no password for.
+          await guestCheckout({ firstName, lastName, email: confirmationEmail, phone })
         } catch (err) {
           if (err.errors?.email) {
             toast.error('That email already has an account — please log in to continue.')
@@ -194,8 +198,24 @@ export default function NewBooking() {
           }
           throw err
         }
+        // Guest chose card: the account exists now, so save the card first,
+        // then finish the booking from the card modal's onAdded.
+        if (paymentMethod?.pending) {
+          setGuestCardOpen(true)
+          return
+        }
       }
+      await submitBooking(paymentMethod)
+    } catch (err) {
+      toast.error(err.message || 'Failed to make booking. Please try again.')
+    } finally {
+      setBooking(false)
+    }
+  }
 
+  async function submitBooking(method) {
+    setBooking(true)
+    try {
       const scheduledFor =
         timeMode === 'later' && pickupTime ? new Date(`${pickupDate}T${pickupTime}`).getTime() : null
       const result = await bookingService.createBooking({
@@ -211,7 +231,7 @@ export default function NewBooking() {
         notes,
         flightNumber,
         confirmationEmail,
-        paymentMethod,
+        paymentMethod: method,
         returnJourney: returnEnabled ? { time: returnTime } : null,
       })
 
@@ -235,6 +255,8 @@ export default function NewBooking() {
   const paymentLabel =
     paymentMethod?.type === 'cash'
       ? 'Pay in car'
+      : paymentMethod?.pending
+      ? 'Pay by card'
       : (() => {
           const card = cards.find((c) => c.id === paymentMethod?.cardId)
           return card ? `${card.brand} •••• ${card.last4}` : 'Choose payment method'
@@ -370,7 +392,7 @@ export default function NewBooking() {
           <CollapsibleRow
             icon={paymentMethod?.type === 'cash' ? <Wallet className="size-5" /> : <CreditCard className="size-5" />}
             title="Payment method"
-            subtitle={user ? paymentLabel : 'Pay in car — card payments need an account'}
+            subtitle={paymentLabel}
             onClick={() => setPaymentPickerOpen(true)}
           />
 
@@ -450,6 +472,18 @@ export default function NewBooking() {
         onClose={() => setPaymentPickerOpen(false)}
         value={paymentMethod}
         onChange={setPaymentMethod}
+      />
+      <AddCardModal
+        open={guestCardOpen}
+        onClose={() => setGuestCardOpen(false)}
+        onAdded={(updatedCards) => {
+          const newest = updatedCards[updatedCards.length - 1]
+          if (!newest) return
+          const method = { type: 'card', cardId: newest.id }
+          setCards(updatedCards)
+          setPaymentMethod(method)
+          submitBooking(method)
+        }}
       />
       <StripePaymentModal
         open={!!pendingPaymentBookingId}

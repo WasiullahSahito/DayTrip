@@ -56,6 +56,47 @@ class AuthController extends Controller
     }
 
     /**
+     * Guest checkout. Creates a passwordless account for a new email, or
+     * re-uses an earlier passwordless guest account so repeat guests can book
+     * without being bounced to a login they have no password for. An email
+     * that belongs to an account with a password (or an admin) is never
+     * signed in this way — those must log in.
+     */
+    public function guest(Request $request)
+    {
+        $data = $request->validate([
+            'firstName' => ['required', 'string', 'max:100'],
+            'lastName' => ['required', 'string', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'phone' => ['required', 'string', 'max:30'],
+        ]);
+
+        $user = User::where('email', $data['email'])->first();
+
+        if ($user) {
+            if ($user->password !== null || $user->is_admin) {
+                throw ValidationException::withMessages([
+                    'email' => ['That email already has an account — please log in to continue.'],
+                ]);
+            }
+        } else {
+            $user = User::create([
+                'first_name' => $data['firstName'],
+                'last_name' => $data['lastName'],
+                'email' => $data['email'],
+                'phone' => $data['phone'],
+                'account_type' => 'personal',
+            ]);
+            event(new Registered($user));
+        }
+
+        return $this->ok([
+            'user' => new UserResource($user),
+            'token' => $user->createToken('spa')->plainTextToken,
+        ], 'Signed in as guest.');
+    }
+
+    /**
      * Deliberately generic on failure — never reveals whether the email
      * exists, and rate-limited via the `login` limiter (keyed by IP+email)
      * to slow brute force without letting one IP lock out every account.

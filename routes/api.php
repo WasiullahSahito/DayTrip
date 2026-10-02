@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Route;
 // -- Public --
 
 Route::post('/auth/register', [AuthController::class, 'register'])->middleware('throttle:register');
+Route::post('/auth/guest', [AuthController::class, 'guest'])->middleware('throttle:register');
 Route::post('/auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:password-reset');
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:password-reset');

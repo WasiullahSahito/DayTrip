@@ -125,6 +125,31 @@ class AuthTest extends TestCase
         $response->assertStatus(422)->assertJsonValidationErrors('email');
     }
 
+    private function guestPayload(string $email): array
+    {
+        return ['firstName' => 'Wasi', 'lastName' => 'Ullah', 'email' => $email, 'phone' => '+353 87 123 4567'];
+    }
+
+    public function test_guest_checkout_creates_then_reuses_a_passwordless_account(): void
+    {
+        $first = $this->postJson('/api/auth/guest', $this->guestPayload('guest@example.com'));
+        $first->assertOk()->assertJsonPath('data.user.email', 'guest@example.com');
+        $this->assertNotEmpty($first->json('data.token'));
+
+        $second = $this->postJson('/api/auth/guest', $this->guestPayload('guest@example.com'));
+        $second->assertOk()->assertJsonPath('data.user.id', $first->json('data.user.id'));
+        $this->assertSame(1, User::where('email', 'guest@example.com')->count());
+    }
+
+    public function test_guest_checkout_refuses_an_account_with_a_password(): void
+    {
+        User::factory()->create(['email' => 'owner@example.com', 'password' => 'Password123']);
+
+        $this->postJson('/api/auth/guest', $this->guestPayload('owner@example.com'))
+            ->assertStatus(422)
+            ->assertJsonValidationErrors('email');
+    }
+
     public function test_a_user_can_login_with_correct_credentials(): void
     {
         User::factory()->create(['email' => 'login@example.com', 'password' => 'Password123']);

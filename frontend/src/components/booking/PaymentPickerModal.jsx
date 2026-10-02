@@ -45,6 +45,20 @@ export default function PaymentPickerModal({ open, onClose, value, onChange }) {
               sub={c.expiry ? `Expires ${c.expiry}` : c.provider === 'sumup' ? 'SumUp card' : ''}
             />
           ))}
+          {!user && (
+            // No account to attach a card to yet — it's created when they
+            // press Book, and the card form opens right after.
+            <PaymentOption
+              active={value?.pending}
+              onClick={() => {
+                onChange({ type: 'card', pending: true })
+                onClose()
+              }}
+              icon={<CreditCard className="size-5" />}
+              label="Pay by card"
+              sub="Enter your card after you press Book"
+            />
+          )}
           {user && (
             <button
               type="button"
