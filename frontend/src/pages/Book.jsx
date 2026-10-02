@@ -10,9 +10,11 @@ import AddressField from '../components/booking/AddressField'
 import RouteMap from '../components/booking/RouteMap'
 
 // The full booking engine (live tracking, saved cards, favourites) lives at
-// /app/home behind auth. This is the public entry point: a signed-in visitor
-// is sent straight there; everyone else gets a lightweight teaser that
-// hands their route to registration rather than re-implementing booking twice.
+// /app/home. This is the public entry point: a signed-in visitor is sent
+// straight there; everyone else gets a lightweight teaser that hands their
+// route to the same booking screen, where they book as a guest (account
+// created silently on submit, see NewBooking) rather than re-implementing
+// booking twice.
 export default function Book() {
   usePageMeta('Book a Taxi | DayTrip', 'Book a taxi online in seconds — enter your pickup and destination to get started.')
   const { status } = useAuth()
@@ -41,7 +43,7 @@ export default function Book() {
         </span>
         <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Where are you headed?</h1>
         <p className="mt-3 text-ink-soft">
-          Enter your journey below — you'll confirm your ride, vehicle, and payment once you're signed in.
+          Enter your journey below and continue straight to booking — no account needed up front.
         </p>
       </div>
 
@@ -51,7 +53,7 @@ export default function Book() {
           <AddressField label="Destination" placeholder="Where to?" value={destination} onChange={setDestination} tone="destination" />
 
           <CTAButton
-            to="/register"
+            to="/app/home"
             state={hasRoute ? { rebook: { pickup, destination, stops: [] } } : undefined}
             fullWidth
             size="lg"
