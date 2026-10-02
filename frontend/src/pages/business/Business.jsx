@@ -5,7 +5,6 @@ import CTAButton from '../../components/common/CTAButton'
 import SectionTitle from '../../components/common/SectionTitle'
 import FeatureCard from '../../components/common/FeatureCard'
 import SolutionsForEverySector from '../../components/business/SolutionsForEverySector'
-import PaymentPlans from '../../components/business/PaymentPlans'
 import CTABand from '../../components/common/CTABand'
 
 export default function Business() {
@@ -79,8 +78,6 @@ export default function Business() {
           <FeatureCard icon={<Smartphone className="size-5" />} title="Multiple booking methods" description="Web Booker, the DayTrip app, and a dedicated business phone line, all reconciled to one account." />
         </div>
       </section>
-
-      <PaymentPlans />
 
       <CTABand
         title="Ready to get started?"
